@@ -569,6 +569,47 @@ export const apiService = {
     }
   },
 
+  // QRIS Payment Settings
+  getQrisSettings: async () => {
+    try {
+      const res = await fetch(`${API_BASE}/orders/qris`);
+      const data = await res.json();
+      return data?.data || { qris_name: 'QRIS Toko Listrik Jaya UMKM', qris_image_url: null };
+    } catch (e) {
+      return { qris_name: 'QRIS Toko Listrik Jaya UMKM', qris_image_url: null };
+    }
+  },
+
+  uploadQrisImage: async (file, qrisName) => {
+    try {
+      const formData = new FormData();
+      if (file) formData.append('qris_file', file);
+      if (qrisName) formData.append('qris_name', qrisName);
+      
+      const token = localStorage.getItem('digi_token') || 'mock_jwt_token_admin_2026';
+      const res = await fetch(`${API_BASE}/orders/qris`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      return await res.json();
+    } catch (e) {
+      return { success: false, message: 'Gagal mengunggah barcode QRIS.' };
+    }
+  },
+
+  deleteQrisImage: async () => {
+    try {
+      const res = await fetch(`${API_BASE}/orders/qris`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return await res.json();
+    } catch (e) {
+      return { success: false, message: 'Gagal menghapus gambar QRIS.' };
+    }
+  },
+
   // Orders Management & Customer Checkout
   createOrder: async (orderPayload) => {
     try {

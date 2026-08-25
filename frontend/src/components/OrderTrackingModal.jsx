@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, X, Package, Clock, CheckCircle2, Truck, AlertCircle, Upload, Copy, Send } from 'lucide-react';
+import { Search, X, Package, Clock, CheckCircle2, Truck, AlertCircle, Upload, Copy, Send, QrCode } from 'lucide-react';
 import { apiService } from '../services/api';
 
 export default function OrderTrackingModal({ onClose }) {
@@ -14,11 +14,18 @@ export default function OrderTrackingModal({ onClose }) {
   const [uploadSuccess, setUploadSuccess] = useState('');
 
   const [bankAccounts, setBankAccounts] = useState([]);
+  const [qris, setQris] = useState(null);
   const [copiedBank, setCopiedBank] = useState(null);
 
   React.useEffect(() => {
-    apiService.getBankAccounts().then(data => {
-      setBankAccounts(Array.isArray(data) ? data : []);
+    Promise.all([
+      apiService.getBankAccounts(),
+      apiService.getQrisSettings()
+    ]).then(([bData, qData]) => {
+      setBankAccounts(Array.isArray(bData) ? bData : []);
+      if (qData && qData.qris_image_url) {
+        setQris(qData);
+      }
     });
   }, []);
 
@@ -92,11 +99,11 @@ export default function OrderTrackingModal({ onClose }) {
   return (
     <div 
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-lg animate-in fade-in overflow-y-auto cursor-pointer"
+      className="fixed inset-0 z-[9999] overflow-y-auto p-4 md:p-6 bg-slate-950/90 backdrop-blur-lg flex justify-center items-start animate-in fade-in cursor-pointer"
     >
       <div 
         onClick={(e) => e.stopPropagation()} 
-        className="glass-panel w-full max-w-2xl p-6 md:p-8 rounded-3xl border border-indigo-500/30 shadow-2xl relative my-8 tracking-modal-panel cursor-default"
+        className="glass-panel w-full max-w-2xl p-6 md:p-8 rounded-3xl border border-indigo-500/30 shadow-2xl relative my-6 md:my-8 max-h-[90vh] overflow-y-auto custom-scrollbar tracking-modal-panel cursor-default"
       >
         
         {/* Close Button */}
@@ -213,6 +220,38 @@ export default function OrderTrackingModal({ onClose }) {
                           </button>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* QRIS Barcode Box in Tracking Modal if PENDING_PAYMENT */}
+                {order.status === 'PENDING_PAYMENT' && qris && qris.qris_image_url && (
+                  <div className="p-4 rounded-xl bg-indigo-950/70 border border-indigo-500/40 text-center space-y-3">
+                    <div className="flex items-center justify-center gap-2">
+                      <QrCode className="w-4 h-4 text-indigo-400" />
+                      <span className="text-[11px] font-bold text-indigo-200 uppercase tracking-wider">
+                        Bayar via QRIS (Scan QR Code E-Wallet / M-Banking)
+                      </span>
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                      <a href={qris.qris_image_url} target="_blank" rel="noreferrer" className="shrink-0 group">
+                        <img 
+                          src={qris.qris_image_url} 
+                          alt="QRIS Toko Listrik Jaya" 
+                          className="w-36 h-36 object-contain rounded-xl bg-white p-2 border border-indigo-400/60 shadow-lg group-hover:scale-105 transition-transform"
+                        />
+                        <span className="text-[10px] font-bold text-indigo-300 group-hover:text-white underline block mt-1">Perbesar QRIS</span>
+                      </a>
+
+                      <div className="text-left text-xs space-y-1.5 max-w-xs">
+                        <p className="text-slate-300 text-[11px] leading-relaxed">
+                          Scan QR Code menggunakan <strong className="text-white">BCA, Mandiri, GoPay, OVO, DANA, ShopeePay, LinkAja</strong>.
+                        </p>
+                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          ✓ Garansi Bebas Biaya Admin
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}

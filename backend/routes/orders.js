@@ -49,6 +49,11 @@ let memoryBankAccounts = [
   }
 ];
 
+let memoryQris = {
+  qris_name: 'QRIS Toko Listrik Jaya UMKM',
+  qris_image_url: null
+};
+
 // Helper to generate unique order code: TLJ-20260825-8A92
 function generateOrderCode() {
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -81,6 +86,115 @@ router.put('/bank-accounts', verifyToken, async (req, res) => {
   } catch (err) {
     memoryBankAccounts = accountsData;
     return res.json({ success: true, data: memoryBankAccounts });
+  }
+});
+
+// GET /api/orders/qris (Public)
+router.get('/qris', async (req, res) => {
+  try {
+    const result = await db.query("SELECT value FROM site_settings WHERE key = 'qris_settings'");
+    if (result.rows.length > 0) {
+      return res.json({ success: true, data: result.rows[0].value });
+    }
+    return res.json({ success: true, data: memoryQris });
+  } catch (err) {
+    return res.json({ success: true, data: memoryQris });
+  }
+});
+
+// POST /api/orders/qris (Admin - Upload/Update QRIS Barcode Image)
+router.post('/qris', verifyToken, upload.single('qris_file'), async (req, res) => {
+  const qris_name = req.body.qris_name || 'QRIS Toko Listrik Jaya UMKM';
+  let fullUrl = null;
+
+  if (req.file) {
+    const filepath = `/uploads/${req.file.filename}`;
+    fullUrl = `${req.protocol}://${req.get('host')}${filepath}`;
+  }
+
+  try {
+    const existingRes = await db.query("SELECT value FROM site_settings WHERE key = 'qris_settings'");
+    let oldUrl = null;
+    if (existingRes.rows.length > 0) {
+      oldUrl = existingRes.rows[0].value?.qris_image_url;
+    } else {
+      oldUrl = memoryQris.qris_image_url;
+    }
+
+    if (req.file && oldUrl) {
+      deleteLocalProofFile(oldUrl);
+    }
+
+    const updatedData = {
+      qris_name,
+      qris_image_url: fullUrl || oldUrl,
+      updated_at: new Date().toISOString()
+    };
+
+    const result = await db.query(
+      "INSERT INTO site_settings (key, value, updated_at) VALUES ('qris_settings', $1, NOW()) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW() RETURNING value",
+      [JSON.stringify(updatedData)]
+    );
+
+    memoryQris = updatedData;
+    return res.json({
+      success: true,
+      message: 'Gambar QRIS berhasil diperbarui.',
+      data: result.rows[0].value
+    });
+  } catch (err) {
+    if (req.file && memoryQris.qris_image_url) {
+      deleteLocalProofFile(memoryQris.qris_image_url);
+    }
+    memoryQris = {
+      qris_name,
+      qris_image_url: fullUrl || memoryQris.qris_image_url
+    };
+    return res.json({ success: true, message: 'Gambar QRIS berhasil diperbarui.', data: memoryQris });
+  }
+});
+
+// DELETE /api/orders/qris (Admin - Delete QRIS Image File)
+router.delete('/qris', verifyToken, async (req, res) => {
+  try {
+    const existingRes = await db.query("SELECT value FROM site_settings WHERE key = 'qris_settings'");
+    let oldUrl = null;
+    let qrisName = 'QRIS Toko Listrik Jaya UMKM';
+
+    if (existingRes.rows.length > 0) {
+      oldUrl = existingRes.rows[0].value?.qris_image_url;
+      qrisName = existingRes.rows[0].value?.qris_name || qrisName;
+    } else {
+      oldUrl = memoryQris.qris_image_url;
+    }
+
+    if (oldUrl) {
+      deleteLocalProofFile(oldUrl);
+    }
+
+    const updatedData = {
+      qris_name: qrisName,
+      qris_image_url: null,
+      updated_at: new Date().toISOString()
+    };
+
+    const result = await db.query(
+      "INSERT INTO site_settings (key, value, updated_at) VALUES ('qris_settings', $1, NOW()) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW() RETURNING value",
+      [JSON.stringify(updatedData)]
+    );
+
+    memoryQris = updatedData;
+    return res.json({
+      success: true,
+      message: 'Gambar barcode QRIS berhasil dihapus.',
+      data: result.rows[0].value
+    });
+  } catch (err) {
+    if (memoryQris.qris_image_url) {
+      deleteLocalProofFile(memoryQris.qris_image_url);
+    }
+    memoryQris.qris_image_url = null;
+    return res.json({ success: true, message: 'Gambar barcode QRIS berhasil dihapus.', data: memoryQris });
   }
 });
 

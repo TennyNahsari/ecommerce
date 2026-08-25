@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Check, Copy, Upload, Send, X, AlertCircle, Building2, CheckCircle2, PackageCheck, Sparkles } from 'lucide-react';
+import { ShoppingCart, Check, Copy, Upload, Send, X, AlertCircle, Building2, CheckCircle2, PackageCheck, Sparkles, QrCode } from 'lucide-react';
 import { apiService } from '../services/api';
 
 export default function OrderModal({ product, onClose }) {
@@ -11,6 +11,7 @@ export default function OrderModal({ product, onClose }) {
   const [notes, setNotes] = useState('');
 
   const [bankAccounts, setBankAccounts] = useState([]);
+  const [qris, setQris] = useState(null);
   const [copiedBank, setCopiedBank] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -28,8 +29,14 @@ export default function OrderModal({ product, onClose }) {
   }, []);
 
   const loadBankAccounts = async () => {
-    const data = await apiService.getBankAccounts();
-    setBankAccounts(Array.isArray(data) ? data : []);
+    const [bData, qData] = await Promise.all([
+      apiService.getBankAccounts(),
+      apiService.getQrisSettings()
+    ]);
+    setBankAccounts(Array.isArray(bData) ? bData : []);
+    if (qData && qData.qris_image_url) {
+      setQris(qData);
+    }
   };
 
   const copyBankNumber = (accNumber, id) => {
@@ -108,8 +115,11 @@ export default function OrderModal({ product, onClose }) {
   const totalPrice = productPrice * quantity;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-lg animate-in fade-in overflow-y-auto">
-      <div className="glass-panel order-modal-panel w-full max-w-3xl p-6 md:p-8 rounded-3xl border border-indigo-500/30 shadow-2xl relative my-8">
+    <div 
+      className="fixed inset-0 z-50 overflow-y-auto p-4 md:p-6 bg-slate-950/90 backdrop-blur-lg flex justify-center items-start animate-in fade-in cursor-pointer"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="glass-panel order-modal-panel w-full max-w-3xl p-6 md:p-8 rounded-3xl border border-indigo-500/30 shadow-2xl relative my-6 md:my-8 max-h-[90vh] overflow-y-auto custom-scrollbar cursor-default">
         
         {/* Close Button */}
         <button 
@@ -204,13 +214,15 @@ export default function OrderModal({ product, onClose }) {
                 </div>
 
                 <div className="order-modal-field">
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 order-modal-label">No. WhatsApp *</label>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 order-modal-label">No. WhatsApp * (Hanya Angka)</label>
                   <input 
-                    type="text" 
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*" 
                     required
                     placeholder="081234567890"
                     value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ''))}
                     className="glass-input w-full text-xs font-mono order-modal-input"
                   />
                 </div>
@@ -332,6 +344,38 @@ export default function OrderModal({ product, onClose }) {
                     </span>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* QRIS Scan Section in Step 2 */}
+            {qris && qris.qris_image_url && (
+              <div className="p-4 rounded-2xl bg-indigo-950/60 border border-indigo-500/40 text-center space-y-2.5 shadow-lg">
+                <div className="flex items-center justify-center gap-2">
+                  <QrCode className="w-4 h-4 text-indigo-400" />
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                    Bayar via QRIS (Scan QR Code All E-Wallet &amp; M-Banking)
+                  </h4>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-1">
+                  <a href={qris.qris_image_url} target="_blank" rel="noreferrer" className="shrink-0 group">
+                    <img 
+                      src={qris.qris_image_url} 
+                      alt="Barcode QRIS Toko Listrik Jaya" 
+                      className="w-36 h-36 object-contain rounded-2xl bg-white p-2 border-2 border-indigo-400/60 shadow-xl group-hover:scale-105 transition-transform"
+                    />
+                    <span className="text-[10px] font-bold text-indigo-300 group-hover:text-white underline block mt-1">Perbesar QRIS</span>
+                  </a>
+
+                  <div className="text-left text-xs space-y-1.5 max-w-xs">
+                    <p className="text-slate-300 text-[11px] leading-relaxed">
+                      Scan QR Code menggunakan aplikasi <strong className="text-white">BCA Mobile, Mandiri Livin', GoPay, OVO, DANA, ShopeePay, LinkAja</strong>, atau M-Banking pilihan Anda.
+                    </p>
+                    <span className="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      ✓ Bebas Biaya Admin / Standar QRIS SNI
+                    </span>
+                  </div>
+                </div>
               </div>
             )}
 

@@ -153,13 +153,15 @@ export default function Header({ onOpenAdmin, onOpenOrderTracking }) {
             </a>
           ))}
           <div className="flex flex-col gap-3 pt-2">
-            <a
-              href="#contact"
-              onClick={(e) => handleLinkClick(e, { url: '#contact' })}
-              className="w-full btn-primary text-center justify-center py-3 text-sm"
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenOrderTracking();
+              }}
+              className="w-full btn-secondary text-center justify-center py-3 text-xs font-bold border border-white/10"
             >
-              Get Started
-            </a>
+              Cek Status Pesanan
+            </button>
           </div>
         </div>
       )}

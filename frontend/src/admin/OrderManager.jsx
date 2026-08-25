@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, CheckCircle2, AlertCircle, Eye, RefreshCw, Building2, Save, Plus, Trash2, X, ExternalLink, Search } from 'lucide-react';
+import { ShoppingBag, CheckCircle2, AlertCircle, Eye, RefreshCw, Building2, Save, Plus, Trash2, X, ExternalLink, Search, QrCode, Upload } from 'lucide-react';
 import { apiService } from '../services/api';
 
 export default function OrderManager() {
@@ -17,6 +17,12 @@ export default function OrderManager() {
   // Bank Accounts Settings State
   const [bankAccounts, setBankAccounts] = useState([]);
   const [savingBanks, setSavingBanks] = useState(false);
+
+  // QRIS Settings State
+  const [qrisSettings, setQrisSettings] = useState({ qris_name: 'QRIS Toko Listrik Jaya UMKM', qris_image_url: null });
+  const [uploadingQris, setUploadingQris] = useState(false);
+  const [qrisFile, setQrisFile] = useState(null);
+  const [qrisNameInput, setQrisNameInput] = useState('');
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,8 +69,50 @@ export default function OrderManager() {
   };
 
   const loadBankAccounts = async () => {
-    const data = await apiService.getBankAccounts();
-    setBankAccounts(Array.isArray(data) ? data : []);
+    const [bData, qData] = await Promise.all([
+      apiService.getBankAccounts(),
+      apiService.getQrisSettings()
+    ]);
+    setBankAccounts(Array.isArray(bData) ? bData : []);
+    if (qData) {
+      setQrisSettings(qData);
+      setQrisNameInput(qData.qris_name || 'QRIS Toko Listrik Jaya UMKM');
+    }
+  };
+
+  const handleSaveQris = async (e) => {
+    if (e) e.preventDefault();
+    if (!qrisFile && !qrisNameInput) return;
+
+    setUploadingQris(true);
+    setMsg('');
+    setErrorMsg('');
+
+    const res = await apiService.uploadQrisImage(qrisFile, qrisNameInput);
+    setUploadingQris(false);
+
+    if (res && res.success) {
+      setMsg(res.message || 'Gambar barcode QRIS berhasil diperbarui!');
+      setQrisSettings(res.data);
+      setQrisFile(null);
+    } else {
+      setErrorMsg(res?.message || 'Gagal menyimpan gambar QRIS.');
+    }
+  };
+
+  const handleDeleteQris = async () => {
+    if (!window.confirm('Apakah Anda yakin ingin menghapus gambar QRIS ini secara permanen dari server? File gambar lama akan dihapus.')) return;
+
+    setMsg('');
+    setErrorMsg('');
+    const res = await apiService.deleteQrisImage();
+    if (res && res.success) {
+      setMsg('Gambar barcode QRIS berhasil dihapus dari server!');
+      setQrisSettings(res.data || { qris_name: 'QRIS Toko Listrik Jaya UMKM', qris_image_url: null });
+      setQrisFile(null);
+    } else {
+      setErrorMsg(res?.message || 'Gagal menghapus gambar QRIS.');
+    }
   };
 
   const handleUpdateStatus = async (orderId, newStatus) => {
@@ -548,6 +596,98 @@ export default function OrderManager() {
 
               </div>
             ))}
+          </div>
+
+          {/* QRIS Payment Settings Section */}
+          <div className="pt-8 border-t border-white/10 space-y-6">
+            <div>
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <QrCode className="w-5 h-5 text-indigo-400" />
+                <span>Pengaturan QRIS Pembayaran (Scan QR Code)</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">
+                Unggah atau perbarui gambar Barcode QRIS Toko Listrik Jaya. QRIS ini akan otomatis tampil di layar Kode Booking dan Cek Status Pesanan.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-white/5 border border-white/10 grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+              
+              {/* QRIS Barcode Preview Column */}
+              <div className="md:col-span-4 flex flex-col items-center justify-center p-4 rounded-xl bg-slate-900/80 border border-white/10 text-center">
+                {qrisSettings.qris_image_url ? (
+                  <div className="space-y-3 w-full flex flex-col items-center">
+                    <img 
+                      src={qrisSettings.qris_image_url} 
+                      alt="Barcode QRIS Toko" 
+                      className="w-48 h-48 object-contain rounded-xl bg-white p-2 border border-white/20 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+                      onClick={() => setSelectedProofUrl(qrisSettings.qris_image_url)}
+                    />
+                    <div className="text-center">
+                      <span className="text-xs font-bold text-emerald-400 block">✓ Barcode QRIS Aktif</span>
+                      <span className="text-[11px] text-slate-400 truncate block mt-0.5">{qrisSettings.qris_name}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="py-8 space-y-2 text-slate-500">
+                    <QrCode className="w-16 h-16 mx-auto stroke-1" />
+                    <p className="text-xs font-semibold">Belum Ada Barcode QRIS</p>
+                    <p className="text-[10px] text-slate-400">Unggah foto/gambar QRIS toko Anda di samping.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Upload & Form Controls Column */}
+              <form onSubmit={handleSaveQris} className="md:col-span-8 space-y-5">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Nama / Label QRIS</label>
+                  <input
+                    type="text"
+                    value={qrisNameInput}
+                    onChange={(e) => setQrisNameInput(e.target.value)}
+                    className="glass-input w-full text-xs font-bold"
+                    placeholder="e.g. QRIS Toko Listrik Jaya (Gopay, OVO, DANA, BCA, Mandiri)"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                    {qrisSettings.qris_image_url ? 'Ganti / Update File Gambar QRIS (JPG/PNG)' : 'Upload File Gambar QRIS (JPG/PNG)'}
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setQrisFile(e.target.files?.[0])}
+                    className="text-xs text-slate-300 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer w-full"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1.5 leading-relaxed">
+                    * Berkas gambar QRIS lama akan otomatis dihapus dari server saat Anda memperbarui atau menghapus gambar QRIS.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={uploadingQris || (!qrisFile && !qrisNameInput)}
+                    className="btn-primary py-2.5 px-6 text-xs font-bold flex items-center gap-2 shadow-lg disabled:opacity-50"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>{uploadingQris ? 'Menyimpan QRIS...' : (qrisSettings.qris_image_url ? 'Update Barcode QRIS' : 'Upload & Simpan QRIS')}</span>
+                  </button>
+
+                  {qrisSettings.qris_image_url && (
+                    <button
+                      type="button"
+                      onClick={handleDeleteQris}
+                      className="py-2.5 px-4 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 hover:text-rose-300 transition-colors text-xs font-bold flex items-center gap-1.5"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Hapus Gambar QRIS</span>
+                    </button>
+                  )}
+                </div>
+              </form>
+
+            </div>
           </div>
         </div>
       )}

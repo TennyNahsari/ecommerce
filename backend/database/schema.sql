@@ -274,6 +274,14 @@ INSERT INTO site_settings (key, value) VALUES (
     ]'::jsonb
 ) ON CONFLICT (key) DO NOTHING;
 
+INSERT INTO site_settings (key, value) VALUES (
+    'qris_settings',
+    '{
+        "qris_name": "QRIS Toko Listrik Jaya UMKM",
+        "qris_image_url": null
+    }'::jsonb
+) ON CONFLICT (key) DO NOTHING;
+
 -- 14. E-Commerce Orders Table
 CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,

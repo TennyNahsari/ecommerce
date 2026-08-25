@@ -8,8 +8,8 @@ export default function FloatingCartBar({ cartItems, onOpenCheckout, onClearCart
   const totalPrice = cartItems.reduce((acc, item) => acc + ((parseFloat(item.price) || 0) * item.quantity), 0);
 
   return (
-    <div className="fixed bottom-6 right-6 md:right-10 z-40 animate-in slide-in-from-bottom duration-300">
-      <div className="glass-panel p-4 md:p-5 rounded-2xl border border-indigo-500/40 shadow-2xl bg-slate-900/95 backdrop-blur-xl flex items-center gap-4 md:gap-6 text-white">
+    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 md:right-10 z-40 animate-in slide-in-from-bottom duration-300">
+      <div className="glass-panel p-3.5 sm:p-5 rounded-2xl border border-indigo-500/40 shadow-2xl bg-slate-900/95 backdrop-blur-xl flex items-center justify-between sm:justify-start gap-3 sm:gap-6 text-white">
         
         {/* Cart Icon Badge */}
         <div className="relative cursor-pointer" onClick={onOpenCheckout}>
