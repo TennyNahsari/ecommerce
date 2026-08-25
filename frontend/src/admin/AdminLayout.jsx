@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, FileText, Image, Sliders, Menu as MenuIcon, X,
-  MessageSquare, FolderOpen, LogOut, Sparkles, Globe, ChevronRight, Tag, Layers
+  MessageSquare, FolderOpen, LogOut, Sparkles, Globe, ChevronRight, Tag, Layers, ShoppingBag
 } from 'lucide-react';
 import Dashboard from './Dashboard';
 import PageBuilder from './PageBuilder';
@@ -12,7 +12,7 @@ import MediaLibrary from './MediaLibrary';
 import InquiryInbox from './InquiryInbox';
 import CategoryManager from './CategoryManager';
 import ServiceManager from './ServiceManager';
-import FooterManager from './FooterManager';
+import OrderManager from './OrderManager';
 
 export default function AdminLayout({ user, onLogout, onCloseAdmin }) {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -20,15 +20,16 @@ export default function AdminLayout({ user, onLogout, onCloseAdmin }) {
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'orders', label: 'Pesanan E-Commerce', icon: ShoppingBag },
+    { id: 'services', label: 'Katalog & Produk', icon: Layers },
+    { id: 'categories', label: 'Category Manager', icon: Tag },
     { id: 'menus', label: 'Header Navigation', icon: MenuIcon },
     { id: 'sliders', label: 'Hero Sliders', icon: Sliders },
-    { id: 'categories', label: 'Category Manager', icon: Tag },
-    { id: 'services', label: 'Katalog & Produk', icon: Layers },
     { id: 'posts', label: 'Blog & Artikel', icon: FolderOpen },
     { id: 'pages', label: 'Page Builder (HTML/CSS)', icon: FileText },
     { id: 'media', label: 'Media Library', icon: Image },
     { id: 'footer', label: 'Footer & Contact Settings', icon: Globe },
-    { id: 'inquiries', label: 'Pesanan & Inquiries', icon: MessageSquare },
+    { id: 'inquiries', label: 'Pesan & Pertanyaan', icon: MessageSquare },
   ];
 
   const activeItem = menuItems.find(i => i.id === activeTab) || menuItems[0];
@@ -85,7 +86,7 @@ export default function AdminLayout({ user, onLogout, onCloseAdmin }) {
           </div>
 
           {/* Navigation Menu */}
-          <nav className="space-y-1.5">
+          <nav className="cms-sidebar-nav">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -93,7 +94,7 @@ export default function AdminLayout({ user, onLogout, onCloseAdmin }) {
                 <button
                   key={item.id}
                   onClick={() => handleTabClick(item.id)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold transition-all ${
+                  className={`w-full cms-sidebar-item flex items-center justify-between px-4 rounded-xl text-xs font-semibold transition-all ${
                     isActive 
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' 
                       : 'text-slate-400 hover:text-white hover:bg-white/5'
@@ -155,6 +156,7 @@ export default function AdminLayout({ user, onLogout, onCloseAdmin }) {
       {/* Main View Area */}
       <main className="flex-1 overflow-y-auto bg-[#081425] p-4 md:p-8 w-full">
         {activeTab === 'dashboard' && <Dashboard onNavigate={(tab) => handleTabClick(tab)} />}
+        {activeTab === 'orders' && <OrderManager />}
         {activeTab === 'menus' && <NavigationManager />}
         {activeTab === 'sliders' && <SliderManager />}
         {activeTab === 'categories' && <CategoryManager />}

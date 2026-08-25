@@ -16,11 +16,12 @@ export default function BlogDetailPage({ slug, onBack }) {
         const found = posts.find(p => p.slug === slug || p.id === parseInt(slug));
         if (found) {
           setPost(found);
+          document.title = `${found.meta_title || found.title} - Toko Listrik Jaya UMKM`;
         } else {
-          setError('Article not found.');
+          setError('Artikel tidak ditemukan.');
         }
       } catch (e) {
-        setError('Error loading article details.');
+        setError('Gagal memuat isi artikel.');
       }
       setLoading(false);
     }

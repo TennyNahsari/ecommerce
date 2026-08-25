@@ -1,61 +1,46 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const fs = require('fs');
 const db = require('../config/db');
 const { verifyToken } = require('../middleware/auth');
 
 let memoryCategories = [
-  { id: 1, name: 'UI/UX & Product Design', slug: 'ui-ux-product-design', order_index: 1 },
-  { id: 2, name: 'Full-Stack Development', slug: 'full-stack-development', order_index: 2 },
-  { id: 3, name: 'Growth & SEO Marketing', slug: 'growth-seo-marketing', order_index: 3 },
-  { id: 4, name: 'Brand Strategy', slug: 'brand-strategy-category', order_index: 4 }
+  { id: 1, name: 'Kabel & Instalasi Listrik', slug: 'kabel-instalasi-listrik', order_index: 1 },
+  { id: 2, name: 'Stop Kontak, Sakelar & Steker', slug: 'stop-kontak-sakelar-steker', order_index: 2 },
+  { id: 3, name: 'Lampu & Penghemat Energi', slug: 'lampu-penghemat-energi', order_index: 3 },
+  { id: 4, name: 'Komponen & Pengaman Listrik', slug: 'komponen-pengaman-listrik', order_index: 4 }
 ];
 
-let memoryServices = [
-  {
-    id: 1,
-    title: 'UI/UX Design',
-    slug: 'ui-ux-design',
-    category_id: 1,
-    icon_name: 'Layout',
-    summary: 'User-centric interface design and design systems tailored for seamless engagement.',
-    description: 'We craft high-fidelity prototypes, interactive user flows, and enterprise design systems using our Aetheric Design methodology.',
-    features: ['Design Systems', 'User Research & Testing', 'Wireframing & Prototyping', 'Mobile-First UX Strategy'],
-    order_index: 1
-  },
-  {
-    id: 2,
-    title: 'Web Development',
-    slug: 'web-development',
-    category_id: 2,
-    icon_name: 'Code',
-    summary: 'Scalable, modern web apps and high-speed platforms built with React, Node, and Cloud architecture.',
-    description: 'Full-stack engineering leveraging cutting-edge frameworks, robust database design, and sub-second page performance.',
-    features: ['React & Modern JS Frameworks', 'Node.js REST APIs', 'PostgreSQL & Database Optimization', 'CMS Architecture & CPanel Deployment'],
-    order_index: 2
-  },
-  {
-    id: 3,
-    title: 'Digital Marketing',
-    slug: 'digital-marketing',
-    category_id: 3,
-    icon_name: 'TrendingUp',
-    summary: 'Data-driven performance marketing, SEO mastery, and conversion rate optimization.',
-    description: 'Accelerate business growth through strategic paid campaigns, technical SEO, content strategies, and continuous A/B testing.',
-    features: ['Search Engine Optimization (SEO)', 'Paid Search & Meta Ads', 'Conversion Rate Optimization (CRO)', 'Marketing Automation & Analytics'],
-    order_index: 3
-  },
-  {
-    id: 4,
-    title: 'Brand Strategy',
-    slug: 'brand-strategy',
-    category_id: 4,
-    icon_name: 'Sparkles',
-    summary: 'Distinct visual identities, strategic messaging, and brand guidelines that resonate.',
-    description: 'We elevate your market position with comprehensive brand strategy, visual style guides, and impactful digital collateral.',
-    features: ['Brand Positioning & Tone of Voice', 'Visual Identity Systems', 'Digital Collateral & Assets', 'Brand Guidelines & Toolkits'],
-    order_index: 4
+let memoryServices = [];
+
+// Helper to delete local uploaded image file from disk and media table
+function deleteLocalImageFile(imageUrl) {
+  if (!imageUrl || typeof imageUrl !== 'string') return;
+  
+  // Check if imageUrl points to a local upload file (/uploads/...)
+  if (imageUrl.includes('/uploads/')) {
+    const filename = imageUrl.split('/uploads/').pop();
+    if (filename) {
+      const cleanFilename = filename.split('?')[0]; // Strip query string if any
+      const filePath = path.join(__dirname, '../uploads', cleanFilename);
+      
+      try {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          console.log(`🗑️ Deleted associated product image file: ${cleanFilename}`);
+        }
+      } catch (err) {
+        console.error(`⚠️ Failed to delete image file ${cleanFilename}:`, err.message);
+      }
+
+      // Also clean up from media table if exists
+      const dbPath = `/uploads/${cleanFilename}`;
+      db.query('DELETE FROM media WHERE filepath = $1 OR filepath LIKE $2', [dbPath, `%${cleanFilename}`])
+        .catch(() => {});
+    }
   }
-];
+}
 
 // ==========================================
 // CATEGORIES ROUTES (MUST BE DEFINED FIRST)
@@ -129,15 +114,16 @@ router.get('/', async (req, res) => {
 
 // POST /api/services (Admin - Create)
 router.post('/', verifyToken, async (req, res) => {
-  const { title, slug, category_id, icon_name, summary, description, features, order_index } = req.body;
+  const { title, slug, category_id, icon_name, summary, description, features, image_url, order_index, price } = req.body;
   const featuresJson = typeof features === 'string' ? features : JSON.stringify(features || []);
   const cleanSlug = slug || title.toLowerCase().replace(/[^a-z0-9]/g, '-');
   const cleanCatId = (category_id && !isNaN(category_id)) ? parseInt(category_id) : null;
+  const cleanPrice = parseFloat(price) || 0;
   
   try {
     const result = await db.query(
-      'INSERT INTO services (title, slug, category_id, icon_name, summary, description, features, order_index) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-      [title, cleanSlug, cleanCatId, icon_name || 'Layout', summary || '', description || '', featuresJson, order_index || 0]
+      'INSERT INTO services (title, slug, category_id, icon_name, summary, description, features, image_url, order_index, price) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
+      [title, cleanSlug, cleanCatId, icon_name || 'Layout', summary || '', description || '', featuresJson, image_url || '', order_index || 0, cleanPrice]
     );
     return res.status(201).json({ success: true, data: result.rows[0] });
   } catch (err) {
@@ -151,7 +137,9 @@ router.post('/', verifyToken, async (req, res) => {
       summary: summary || '',
       description: description || '',
       features: Array.isArray(features) ? features : JSON.parse(featuresJson),
-      order_index: order_index || memoryServices.length + 1
+      image_url: image_url || '',
+      order_index: order_index || memoryServices.length + 1,
+      price: cleanPrice
     };
     memoryServices.push(newService);
     return res.status(201).json({ success: true, data: newService });
@@ -187,19 +175,33 @@ router.get('/:id', async (req, res) => {
 // PUT /api/services/:id (Admin - Update Item)
 router.put('/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
-  const { title, slug, category_id, icon_name, summary, description, features, order_index } = req.body;
+  const { title, slug, category_id, icon_name, summary, description, features, image_url, order_index, price } = req.body;
   const featuresJson = typeof features === 'string' ? features : JSON.stringify(features || []);
   const cleanSlug = slug || title.toLowerCase().replace(/[^a-z0-9]/g, '-');
   const cleanCatId = (category_id && !isNaN(category_id)) ? parseInt(category_id) : null;
+  const cleanPrice = parseFloat(price) || 0;
 
   try {
     const isIdNum = !isNaN(id);
+
+    // Retrieve old image_url before updating to clean up replaced local file
+    const oldRes = await db.query(
+      isIdNum ? 'SELECT image_url FROM services WHERE id = $1 OR slug = $2' : 'SELECT image_url FROM services WHERE slug = $1',
+      isIdNum ? [parseInt(id), id] : [id]
+    );
+    if (oldRes.rows.length > 0) {
+      const oldImg = oldRes.rows[0].image_url;
+      if (oldImg && image_url && oldImg !== image_url) {
+        deleteLocalImageFile(oldImg);
+      }
+    }
+
     const queryStr = isIdNum
-      ? 'UPDATE services SET title = $1, slug = $2, category_id = $3, icon_name = $4, summary = $5, description = $6, features = $7, order_index = $8 WHERE id = $9 OR slug = $10 RETURNING *'
-      : 'UPDATE services SET title = $1, slug = $2, category_id = $3, icon_name = $4, summary = $5, description = $6, features = $7, order_index = $8 WHERE slug = $9 RETURNING *';
+      ? 'UPDATE services SET title = $1, slug = $2, category_id = $3, icon_name = $4, summary = $5, description = $6, features = $7, image_url = $8, order_index = $9, price = $10 WHERE id = $11 OR slug = $12 RETURNING *'
+      : 'UPDATE services SET title = $1, slug = $2, category_id = $3, icon_name = $4, summary = $5, description = $6, features = $7, image_url = $8, order_index = $9, price = $10 WHERE slug = $11 RETURNING *';
     const params = isIdNum 
-      ? [title, cleanSlug, cleanCatId, icon_name || 'Layout', summary || '', description || '', featuresJson, order_index || 0, parseInt(id), id]
-      : [title, cleanSlug, cleanCatId, icon_name || 'Layout', summary || '', description || '', featuresJson, order_index || 0, id];
+      ? [title, cleanSlug, cleanCatId, icon_name || 'Layout', summary || '', description || '', featuresJson, image_url || '', order_index || 0, cleanPrice, parseInt(id), id]
+      : [title, cleanSlug, cleanCatId, icon_name || 'Layout', summary || '', description || '', featuresJson, image_url || '', order_index || 0, cleanPrice, id];
 
     const result = await db.query(queryStr, params);
     if (result.rows.length === 0) {
@@ -210,6 +212,10 @@ router.put('/:id', verifyToken, async (req, res) => {
     console.error('Services Update Error:', err.message);
     const idx = memoryServices.findIndex(s => s.id === parseInt(id) || s.slug === id);
     if (idx !== -1) {
+      const oldImg = memoryServices[idx].image_url;
+      if (oldImg && image_url && oldImg !== image_url) {
+        deleteLocalImageFile(oldImg);
+      }
       memoryServices[idx] = {
         ...memoryServices[idx],
         title,
@@ -219,7 +225,9 @@ router.put('/:id', verifyToken, async (req, res) => {
         summary: summary || memoryServices[idx].summary,
         description: description || memoryServices[idx].description,
         features: Array.isArray(features) ? features : JSON.parse(featuresJson),
-        order_index: order_index || memoryServices[idx].order_index
+        image_url: image_url || memoryServices[idx].image_url,
+        order_index: order_index || memoryServices[idx].order_index,
+        price: cleanPrice
       };
       return res.json({ success: true, data: memoryServices[idx] });
     }
@@ -230,12 +238,32 @@ router.put('/:id', verifyToken, async (req, res) => {
 // DELETE /api/services/:id (Admin - Delete Item)
 router.delete('/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
+  const isIdNum = !isNaN(id);
+
   try {
-    await db.query('DELETE FROM services WHERE id = $1 OR slug = $2', [isNaN(id) ? -1 : parseInt(id), id]);
-    return res.json({ success: true, message: 'Service deleted' });
+    // Fetch product record first to delete its associated local image file
+    const findQuery = isIdNum
+      ? 'SELECT image_url FROM services WHERE id = $1 OR slug = $2'
+      : 'SELECT image_url FROM services WHERE slug = $1';
+    const findParams = isIdNum ? [parseInt(id), id] : [id];
+    const itemRes = await db.query(findQuery, findParams);
+
+    if (itemRes.rows.length > 0 && itemRes.rows[0].image_url) {
+      deleteLocalImageFile(itemRes.rows[0].image_url);
+    }
+
+    await db.query('DELETE FROM services WHERE id = $1 OR slug = $2', [isIdNum ? parseInt(id) : -1, id]);
+    return res.json({ success: true, message: 'Product and associated image file deleted successfully' });
   } catch (err) {
-    memoryServices = memoryServices.filter(s => s.id !== parseInt(id) && s.slug !== id);
-    return res.json({ success: true, message: 'Service deleted' });
+    const idx = memoryServices.findIndex(s => s.id === parseInt(id) || s.slug === id);
+    if (idx !== -1) {
+      const item = memoryServices[idx];
+      if (item && item.image_url) {
+        deleteLocalImageFile(item.image_url);
+      }
+      memoryServices.splice(idx, 1);
+    }
+    return res.json({ success: true, message: 'Product deleted successfully' });
   }
 });
 

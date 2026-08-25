@@ -24,9 +24,18 @@ export default function HeroSlider() {
     return () => clearInterval(timer);
   }, [slides.length]);
 
-  if (slides.length === 0) return null;
+  const defaultSlide = {
+    id: 1,
+    title: 'Pusat Peralatan Listrik UMKM Terlengkap',
+    subtitle: 'Solusi kebutuhan kabel, stop kontak, sakelar, lampu LED, dan pengaman listrik berkualitas SNI dengan harga grosir & eceran.',
+    badge_text: 'PROMO SPESIAL UMKM',
+    image_url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200',
+    cta_text: 'Lihat Katalog Produk',
+    cta_link: '#services'
+  };
 
-  const currentSlide = slides[currentIndex];
+  const safeSlides = Array.isArray(slides) && slides.length > 0 ? slides : [defaultSlide];
+  const currentSlide = safeSlides[currentIndex] || safeSlides[0] || defaultSlide;
 
   return (
     <section id="hero" className="relative min-h-screen pt-36 pb-20 flex flex-col items-center justify-center overflow-hidden w-full text-center">
@@ -86,17 +95,17 @@ export default function HeroSlider() {
         </div>
 
         {/* Slide Controls */}
-        {slides.length > 1 && (
+        {safeSlides.length > 1 && (
           <div className="flex items-center justify-center gap-4 mt-8 mx-auto">
             <button
-              onClick={() => setCurrentIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1))}
+              onClick={() => setCurrentIndex((prev) => (prev === 0 ? safeSlides.length - 1 : prev - 1))}
               className="p-2 rounded-full bg-white/5 hover:bg-indigo-600/30 border border-white/10 text-slate-300 transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-2">
-              {slides.map((_, idx) => (
+              {safeSlides.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setCurrentIndex(idx)}
@@ -106,7 +115,7 @@ export default function HeroSlider() {
             </div>
 
             <button
-              onClick={() => setCurrentIndex((prev) => (prev + 1) % slides.length)}
+              onClick={() => setCurrentIndex((prev) => (prev + 1) % safeSlides.length)}
               className="p-2 rounded-full bg-white/5 hover:bg-indigo-600/30 border border-white/10 text-slate-300 transition-colors"
             >
               <ChevronRight className="w-5 h-5" />

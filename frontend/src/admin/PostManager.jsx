@@ -5,8 +5,15 @@ import { apiService } from '../services/api';
 export default function PostManager() {
   const [posts, setPosts] = useState([]);
   const [activePost, setActivePost] = useState(null);
-  const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  const safePosts = Array.isArray(posts) ? posts : [];
+  const totalPages = Math.ceil(safePosts.length / itemsPerPage) || 1;
+  const paginatedPosts = safePosts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   useEffect(() => {
     loadPosts();
@@ -67,35 +74,64 @@ export default function PostManager() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Posts List */}
-        <div className="lg:col-span-4 glass-panel p-6 rounded-2xl border border-white/10 flex flex-col gap-4">
-          <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Published Articles ({posts.length})</h3>
-          
-          <div className="space-y-2">
-            {posts.map((p) => (
-              <div 
-                key={p.id}
-                onClick={() => setActivePost(p)}
-                className={`p-4 rounded-xl cursor-pointer border transition-all ${
-                  activePost?.id === p.id 
-                    ? 'bg-purple-600/20 border-purple-500 text-white' 
-                    : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-purple-400 uppercase">{p.category_name || 'Insights'}</span>
-                  {p.id && (
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }} 
-                      className="text-slate-500 hover:text-rose-400"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+        <div className="lg:col-span-4 glass-panel p-6 rounded-2xl border border-white/10 flex flex-col justify-between gap-4">
+          <div>
+            <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4">Artikel Terbit ({safePosts.length})</h3>
+            
+            <div className="space-y-2">
+              {paginatedPosts.map((p) => (
+                <div 
+                  key={p.id}
+                  onClick={() => setActivePost(p)}
+                  className={`p-4 rounded-xl cursor-pointer border transition-all ${
+                    activePost?.id === p.id 
+                      ? 'bg-purple-600/20 border-purple-500 text-white' 
+                      : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-purple-400 uppercase">{p.category_name || 'Insights'}</span>
+                    {p.id && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }} 
+                        className="text-slate-500 hover:text-rose-400"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <h4 className="text-sm font-bold truncate mt-1">{p.title}</h4>
                 </div>
-                <h4 className="text-sm font-bold truncate mt-1">{p.title}</h4>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+
+          {/* Left List Pagination Bar */}
+          {safePosts.length > itemsPerPage && (
+            <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 disabled:opacity-40 font-bold text-slate-300 transition-colors"
+              >
+                &larr; Prev
+              </button>
+
+              <span className="text-slate-400 font-bold">
+                Hal {currentPage} / {totalPages}
+              </span>
+
+              <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 disabled:opacity-40 font-bold text-slate-300 transition-colors"
+              >
+                Next &rarr;
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Editor Form */}

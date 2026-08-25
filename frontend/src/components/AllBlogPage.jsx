@@ -36,7 +36,7 @@ export default function AllBlogPage({ onBack }) {
     return (
       <div className="subpage-top-clearance min-h-screen pb-20 flex flex-col items-center justify-center text-center">
         <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-xs text-slate-400">Loading full articles & insights directory...</p>
+        <p className="text-xs text-slate-400">Memuat artikel &amp; panduan kelistrikan...</p>
       </div>
     );
   }
@@ -52,19 +52,19 @@ export default function AllBlogPage({ onBack }) {
             className="inline-flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-indigo-500/50 transition-all shadow-lg"
           >
             <ArrowLeft className="w-4 h-4 text-indigo-400" />
-            <span>Back to Home</span>
+            <span>Kembali ke Beranda</span>
           </button>
         </div>
 
         {/* Directory Header Banner */}
         <div className="glass-panel p-8 md:p-12 rounded-3xl border border-indigo-500/30 shadow-2xl mb-12 w-full text-center flex flex-col items-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -z-10" />
-          <div className="badge-glow mb-3 mx-auto">Thought Leadership Directory</div>
+          <div className="badge-glow mb-3 mx-auto">Direktori Edukasi Listrik</div>
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center">
-            All Articles & Industry Insights
+            Semua Artikel &amp; Panduan Kelistrikan
           </h1>
           <p className="text-slate-300 text-sm md:text-base max-w-2xl text-center leading-relaxed mb-6">
-            Read our latest research on digital transformation, B2B Web Design 2026 trends, technical SEO, and cloud web architectures.
+            Temukan artikel seputar pemilihan kabel listrik SNI, lampu LED hemat energi, pencegahan korsleting, dan panduan teknisi listrik.
           </p>
 
           {/* Search Bar */}
@@ -72,7 +72,7 @@ export default function AllBlogPage({ onBack }) {
             <Search className="w-4 h-4 text-slate-400 absolute left-4 top-3.5" />
             <input 
               type="text"
-              placeholder="Search articles by title or keyword..."
+              placeholder="Cari judul artikel, topik kabel, atau lampu LED..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="glass-input w-full pl-11 pr-4 py-2.5 text-xs text-white"
@@ -80,43 +80,44 @@ export default function AllBlogPage({ onBack }) {
           </div>
         </div>
 
-        {/* Articles Grid */}
+        {/* Articles Grid with Explicit !important Spacing */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
           {filteredPosts.map((post) => (
             <div 
               key={post.id || post.slug}
               onClick={() => handlePostDetailClick(post.slug)}
-              className="glass-card rounded-2xl overflow-hidden group cursor-pointer flex flex-col justify-between"
+              className="glass-card blog-card-container group cursor-pointer border border-white/10 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300"
             >
-              <div className="relative h-56 overflow-hidden">
+              <div className="blog-card-image-box">
                 <img 
                   src={post.featured_image} 
                   alt={post.title} 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-                <span className="absolute top-4 left-4 badge-glow text-[11px]">
-                  {post.category_name || 'Insight'}
+                <span className="absolute top-4 left-4 badge-glow text-[11px] bg-slate-950/80 backdrop-blur-md">
+                  {post.category_name || 'Edukasi Listrik'}
                 </span>
               </div>
 
-              <div className="p-6 flex-1 flex flex-col justify-between">
+              <div className="blog-card-content">
                 <div>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-400 mb-2">
-                    <Calendar className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>{post.created_at ? new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '2026'}</span>
+                  <div className="blog-card-date text-slate-400">
+                    <Calendar className="w-4 h-4 text-indigo-400 shrink-0" />
+                    <span>{post.created_at ? new Date(post.created_at).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' }) : '2026'}</span>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">
+                  <h3 className="blog-card-title text-white group-hover:text-indigo-300 transition-colors">
                     {post.title}
                   </h3>
-                  <p className="text-xs text-slate-300 line-clamp-3 mb-6">
+                  <p className="blog-card-excerpt line-clamp-3">
                     {post.excerpt}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-indigo-400 group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                    Read Article &rarr;
+                <div className="blog-card-footer">
+                  <span className="text-xs font-bold text-indigo-300 group-hover:text-white flex items-center gap-1.5 transition-colors">
+                    <span>Baca Artikel Selengkapnya</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>
               </div>

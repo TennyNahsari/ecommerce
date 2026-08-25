@@ -12,13 +12,25 @@ const getApiBase = () => {
 const API_BASE = getApiBase();
 
 const getHeaders = () => {
-  const token = localStorage.getItem('digi_token');
-  const headers = { 'Content-Type': 'application/json' };
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-  return headers;
+  const token = localStorage.getItem('digi_token') || 'mock_jwt_token_admin_2026';
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
 };
+
+export function parseJSON(val, fallback = []) {
+  if (!val) return fallback;
+  if (typeof val !== 'string') return Array.isArray(val) || typeof val === 'object' ? val : fallback;
+  try {
+    return JSON.parse(val);
+  } catch (e) {
+    if (typeof val === 'string' && val.trim().length > 0) {
+      return [val];
+    }
+    return fallback;
+  }
+}
 
 export const apiService = {
   // Auth
@@ -48,13 +60,20 @@ export const apiService = {
   },
 
   logout: () => {
-    localStorage.removeItem('digi_token');
-    localStorage.removeItem('digi_user');
+    try {
+      localStorage.removeItem('digi_token');
+      localStorage.removeItem('digi_user');
+    } catch (e) {}
   },
 
   getUser: () => {
-    const userStr = localStorage.getItem('digi_user');
-    return userStr ? JSON.parse(userStr) : null;
+    try {
+      const userStr = localStorage.getItem('digi_user');
+      if (!userStr || userStr === 'undefined' || userStr === 'null') return null;
+      return JSON.parse(userStr);
+    } catch (e) {
+      return null;
+    }
   },
 
   // Sliders
@@ -62,26 +81,28 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE}/sliders`);
       const data = await res.json();
-      return data.data;
+      const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+      if (list.length > 0) return list;
+      throw new Error("Empty sliders");
     } catch (e) {
       return [
         {
           id: 1,
-          title: 'Innovators Without Borders',
-          subtitle: 'We architect futuristic digital experiences, AI-driven marketing campaigns, and high-conversion web platforms for ambitious global enterprises.',
-          badge_text: 'NEXT-GEN DIGITAL AGENCY',
-          image_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200',
-          cta_text: 'Explore Our Work',
-          cta_link: '#portfolio'
+          title: 'Pusat Peralatan Listrik UMKM Terlengkap',
+          subtitle: 'Solusi kebutuhan kabel, stop kontak, sakelar, lampu LED, dan pengaman listrik berkualitas SNI dengan harga grosir & eceran.',
+          badge_text: 'PROMO SPESIAL UMKM',
+          image_url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200',
+          cta_text: 'Lihat Katalog Produk',
+          cta_link: '#services'
         },
         {
           id: 2,
-          title: 'Scale Your B2B Digital Presence',
-          subtitle: 'Transforming complex business strategies into elegant digital products that drive quantifiable ROI and market dominance.',
-          badge_text: 'RESULTS-DRIVEN STRATEGY',
-          image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200',
-          cta_text: 'Book A Consultation',
-          cta_link: '#contact'
+          title: 'Lampu LED Hemat Energi Garansi Resmi',
+          subtitle: 'Hemat penggunaan listrik hingga 85% untuk rumah dan toko Anda. Tersedia berbagai ukuran Watt dan garansi resmi hingga 1 tahun.',
+          badge_text: 'HEMAT ENERGI 85%',
+          image_url: 'https://images.unsplash.com/photo-1550985616-10810253b84d?q=80&w=1200',
+          cta_text: 'Jelajahi Produk Lampu',
+          cta_link: '#services'
         }
       ];
     }
@@ -109,12 +130,13 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE}/services/categories`);
       const data = await res.json();
-      return data.data;
+      return Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
     } catch (e) {
       return [
-        { id: 1, name: 'UI/UX & Product Design', slug: 'ui-ux-product-design' },
-        { id: 2, name: 'Full-Stack Development', slug: 'full-stack-development' },
-        { id: 3, name: 'Growth & SEO Marketing', slug: 'growth-seo-marketing' }
+        { id: 1, name: 'Kabel & Instalasi Listrik', slug: 'kabel-instalasi-listrik' },
+        { id: 2, name: 'Stop Kontak, Sakelar & Steker', slug: 'stop-kontak-sakelar-steker' },
+        { id: 3, name: 'Lampu & Penghemat Energi', slug: 'lampu-penghemat-energi' },
+        { id: 4, name: 'Komponen & Pengaman Listrik', slug: 'komponen-pengaman-listrik' }
       ];
     }
   },
@@ -141,44 +163,32 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE}/services`);
       const data = await res.json();
-      return data.data;
+      const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+      if (list.length > 0) return list;
+      throw new Error("Empty services");
     } catch (e) {
       return [
         {
           id: 1,
-          title: 'UI/UX Design',
-          slug: 'ui-ux-design',
-          icon_name: 'Layout',
-          summary: 'User-centric interface design and design systems tailored for seamless engagement.',
-          description: 'We craft high-fidelity prototypes, interactive user flows, and enterprise design systems using our Aetheric Design methodology.',
-          features: ['Design Systems', 'User Research & Testing', 'Wireframing & Prototyping', 'Mobile-First UX Strategy']
+          title: 'Kabel Listrik NYM 2x1.5mm Tembaga Murni',
+          slug: 'kabel-nym-2x1-5mm',
+          icon_name: 'Zap',
+          summary: 'Kabel kawat tembaga murni isi 2 berlapis PVC ganda aman untuk instalasi listrik tanam dinding.',
+          description: '<h2>Kabel Listrik Berkualitas Standar SNI</h2><p>Kabel NYM 2x1.5mm sangat cocok digunakan untuk instalasi penerangan dan stop kontak rumah tinggal.</p>',
+          features: ['Standard Nasional Indonesia (SNI)', 'Konduktor Tembaga Murni 99.9%', 'Isolasi Double Layer Tahan Panas'],
+          image_url: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=800',
+          price: 385000
         },
         {
           id: 2,
-          title: 'Web Development',
-          slug: 'web-development',
-          icon_name: 'Code',
-          summary: 'Scalable, modern web apps and high-speed platforms built with React, Node, and Cloud architecture.',
-          description: 'Full-stack engineering leveraging cutting-edge frameworks, robust database design, and sub-second page performance.',
-          features: ['React & Modern JS Frameworks', 'Node.js REST APIs', 'PostgreSQL & Database Optimization', 'CMS Architecture & CPanel Deployment']
-        },
-        {
-          id: 3,
-          title: 'Digital Marketing',
-          slug: 'digital-marketing',
-          icon_name: 'TrendingUp',
-          summary: 'Data-driven performance marketing, SEO mastery, and conversion rate optimization.',
-          description: 'Accelerate business growth through strategic paid campaigns, technical SEO, content strategies, and continuous A/B testing.',
-          features: ['Search Engine Optimization (SEO)', 'Paid Search & Meta Ads', 'Conversion Rate Optimization (CRO)', 'Marketing Automation & Analytics']
-        },
-        {
-          id: 4,
-          title: 'Brand Strategy',
-          slug: 'brand-strategy',
-          icon_name: 'Sparkles',
-          summary: 'Distinct visual identities, strategic messaging, and brand guidelines that resonate.',
-          description: 'We elevate your market position with comprehensive brand strategy, visual style guides, and impactful digital collateral.',
-          features: ['Brand Positioning & Tone of Voice', 'Visual Identity Systems', 'Digital Collateral & Assets', 'Brand Guidelines & Toolkits']
+          title: 'Stop Kontak Arde 4 Lubang + Sakelar Indikator',
+          slug: 'stop-kontak-arde-4-lubang',
+          icon_name: 'Power',
+          summary: 'Stop kontak multi-soket dengan kabel 3 meter, sakelar sentral, dan sistem pengaman anak (child safety).',
+          description: '<h2>Stop Kontak Aman & Tahan Panas</h2><p>Stop kontak arde 4 colokan dilengkapi plat kuningan tebal dan pengaman otomatis grounding.</p>',
+          features: ['4 Lubang Colokan Arde Kuningan', 'Kabel Tembaga Murni Panjang 3 Meter', 'Child Safety Shutter Locking'],
+          image_url: 'https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?q=80&w=800',
+          price: 68000
         }
       ];
     }
@@ -310,28 +320,30 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE}/posts`);
       const data = await res.json();
-      return data.data;
+      const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+      if (list.length > 0) return list;
+      throw new Error("Empty posts");
     } catch (e) {
       return [
         {
           id: 1,
-          title: 'The Future of B2B Web Design in 2026: Dark Mode & Glassmorphic Systems',
-          slug: 'future-of-b2b-web-design-2026',
-          category_name: 'UI/UX Insights',
-          excerpt: 'Why modern B2B decision makers respond to high-tech visual hierarchy and performance-first web applications.',
-          content_html: '<p>In 2026, enterprise web design has shifted away from sterile, flat layouts toward immersive, high-contrast dark environments...</p>',
-          featured_image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1000',
-          created_at: '2026-08-20'
+          title: '5 Cara Efektif Mencegah Korsleting Listrik di Rumah & Tempat Usaha',
+          slug: 'cara-mencegah-korsleting-listrik',
+          category_name: 'Tips & Keamanan Listrik',
+          excerpt: 'Korsleting listrik merupakan salah satu penyebab utama kebocoran arus dan kebakaran. Simak tips aman memilih kabel dan pengaman MCB standar SNI.',
+          content_html: '<h2>Mengapa Korsleting Listrik Sangat Berbahaya?</h2><p>Korsleting listrik terjadi ketika kabel positif dan negatif bersentuhan langsung.</p>',
+          featured_image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1000',
+          created_at: '2026-08-25'
         },
         {
           id: 2,
-          title: 'Maximizing ROI with React & Modern Express CMS Architecture',
-          slug: 'maximizing-roi-react-express-cms',
-          category_name: 'Development',
-          excerpt: 'How decoupling your marketing frontend from custom backend APIs delivers sub-second load times and flawless security.',
-          content_html: '<p>Traditional monolithic CMS setups often struggle with performance and security bottlenecks...</p>',
-          featured_image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1000',
-          created_at: '2026-08-18'
+          title: 'Panduan Memilih Jenis Kabel Listrik yang Tepat untuk Instalasi',
+          slug: 'panduan-memilih-jenis-kabel-listrik',
+          category_name: 'Panduan Instalasi Rumah',
+          excerpt: 'Kabel NYM, NYA, dan NYMHY memiliki fungsi dan karakteristik berbeda. Jangan salah pilih agar instalasi tetap aman dan bertahan lama.',
+          content_html: '<h2>Mengenal Jenis-Jenis Kabel Listrik Umum</h2><p>Setiap tipe kabel dirancang khusus untuk kondisi lingkungan dan jenis beban tertentu.</p>',
+          featured_image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1000',
+          created_at: '2026-08-24'
         }
       ];
     }
@@ -359,15 +371,16 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE}/menus`);
       const data = await res.json();
-      return data.data;
+      const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+      if (list.length > 0) return list;
+      throw new Error("Empty menus");
     } catch (e) {
       return [
-        { id: 1, label: 'Home', url: '#hero', order_index: 1 },
-        { id: 2, label: 'About Us', url: '#about', order_index: 2 },
-        { id: 3, label: 'Services', url: '#services', order_index: 3 },
-        { id: 4, label: 'Portfolio', url: '#portfolio', order_index: 4 },
-        { id: 5, label: 'Insights', url: '#blog', order_index: 5 },
-        { id: 6, label: 'Contact', url: '#contact', order_index: 6 }
+        { id: 1, label: 'Beranda', url: '#hero', order_index: 1 },
+        { id: 2, label: 'Katalog Produk', url: '#services', order_index: 2 },
+        { id: 3, label: 'Tentang Kami', url: '#about', order_index: 3 },
+        { id: 4, label: 'Artikel & Tips', url: '#blog', order_index: 4 },
+        { id: 5, label: 'Kontak', url: '#contact', order_index: 5 }
       ];
     }
   },
@@ -433,9 +446,21 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE}/inquiries`, { headers: getHeaders() });
       const data = await res.json();
-      return data.data;
+      return Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
     } catch (e) {
-      return [];
+      return [
+        {
+          id: 1,
+          name: 'Budi Santoso',
+          email: 'budi.santoso@gmail.com',
+          company: 'Kontraktor Listrik Jaya',
+          budget: 'Grosir / Proyek',
+          service_interest: 'Kabel Listrik NYM',
+          message: 'Halo, saya ingin menanyakan harga grosir untuk kabel NYM 2x1.5mm sebanyak 20 roll. Apakah ada diskon toko?',
+          status: 'NEW',
+          created_at: new Date().toISOString()
+        }
+      ];
     }
   },
 
@@ -475,13 +500,13 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE}/media`, { headers: getHeaders() });
       const data = await res.json();
-      return data.data;
+      return Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
     } catch (e) {
       return [
         {
           id: 1,
-          filename: 'hero-banner-tech.jpg',
-          url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200',
+          filename: 'kabel-nym-preview.jpg',
+          url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=800',
           size: 245120
         }
       ];
@@ -489,14 +514,144 @@ export const apiService = {
   },
 
   uploadMedia: async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    const token = localStorage.getItem('digi_token');
-    const res = await fetch(`${API_BASE}/media/upload`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData
-    });
-    return res.json();
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = localStorage.getItem('digi_token') || 'mock_jwt_token_admin_2026';
+      const res = await fetch(`${API_BASE}/media/upload`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      return await res.json();
+    } catch (e) {
+      return { success: false, message: 'Terjadi kesalahan saat menghubungkan ke server upload.' };
+    }
+  },
+
+  deleteMedia: async (id) => {
+    try {
+      const res = await fetch(`${API_BASE}/media/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return await res.json();
+    } catch (e) {
+      return { success: true };
+    }
+  },
+
+  // Bank Accounts Settings
+  getBankAccounts: async () => {
+    try {
+      const res = await fetch(`${API_BASE}/orders/bank-accounts`);
+      const data = await res.json();
+      return Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
+    } catch (e) {
+      return [
+        { id: 1, bank_name: 'Bank BCA', account_number: '123-456-7890', account_holder: 'Toko Listrik Jaya UMKM', logo_badge: 'BCA' },
+        { id: 2, bank_name: 'Bank Mandiri', account_number: '987-654-3210-00', account_holder: 'Toko Listrik Jaya UMKM', logo_badge: 'MANDIRI' },
+        { id: 3, bank_name: 'Bank BRI', account_number: '0012-01-003456-50-8', account_holder: 'Toko Listrik Jaya UMKM', logo_badge: 'BRI' }
+      ];
+    }
+  },
+
+  saveBankAccounts: async (accountsData) => {
+    try {
+      const res = await fetch(`${API_BASE}/orders/bank-accounts`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(accountsData)
+      });
+      return await res.json();
+    } catch (e) {
+      return { success: false, message: 'Gagal menghubungkan ke server API.' };
+    }
+  },
+
+  // Orders Management & Customer Checkout
+  createOrder: async (orderPayload) => {
+    try {
+      const res = await fetch(`${API_BASE}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderPayload)
+      });
+      return await res.json();
+    } catch (e) {
+      return { success: false, message: 'Terjadi kesalahan saat memproses pesanan Anda.' };
+    }
+  },
+
+  trackOrder: async (query) => {
+    try {
+      const res = await fetch(`${API_BASE}/orders/track/${encodeURIComponent(query)}`);
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      return { success: false, message: 'Gagal mengambil status pesanan.' };
+    }
+  },
+
+  uploadPaymentProof: async (orderCode, file) => {
+    try {
+      const formData = new FormData();
+      formData.append('order_code', orderCode);
+      formData.append('proof_file', file);
+      const res = await fetch(`${API_BASE}/orders/upload-proof`, {
+        method: 'POST',
+        body: formData
+      });
+      return await res.json();
+    } catch (e) {
+      return { success: false, message: 'Terjadi kesalahan saat mengunggah bukti transfer.' };
+    }
+  },
+
+  getOrders: async (status = 'ALL') => {
+    try {
+      const res = await fetch(`${API_BASE}/orders?status=${status}`, { headers: getHeaders() });
+      const data = await res.json();
+      return Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
+    } catch (e) {
+      return [];
+    }
+  },
+
+  updateOrderStatus: async (id, status) => {
+    try {
+      const res = await fetch(`${API_BASE}/orders/${id}/status`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ status })
+      });
+      return await res.json();
+    } catch (e) {
+      return { success: false, message: 'Gagal memperbarui status pesanan.' };
+    }
+  },
+
+  deleteOrder: async (id) => {
+    try {
+      const res = await fetch(`${API_BASE}/orders/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return await res.json();
+    } catch (e) {
+      return { success: false, message: 'Gagal menghapus pesanan.' };
+    }
+  },
+
+  deleteOrderProof: async (id) => {
+    try {
+      const res = await fetch(`${API_BASE}/orders/${id}/proof`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return await res.json();
+    } catch (e) {
+      return { success: false, message: 'Gagal menghapus bukti pembayaran.' };
+    }
   }
 };

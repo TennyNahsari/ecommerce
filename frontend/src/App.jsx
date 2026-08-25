@@ -17,6 +17,9 @@ import AllBlogPage from './components/AllBlogPage';
 
 import AdminLogin from './admin/AdminLogin';
 import AdminLayout from './admin/AdminLayout';
+import OrderModal from './components/OrderModal';
+import OrderTrackingModal from './components/OrderTrackingModal';
+import WhatsAppButton from './components/WhatsAppButton';
 import { apiService } from './services/api';
 
 export default function App() {
@@ -24,6 +27,8 @@ export default function App() {
   const [adminUser, setAdminUser] = useState(null);
   const [inAdminPanel, setInAdminPanel] = useState(false);
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const [orderProduct, setOrderProduct] = useState(null);
+  const [showOrderTracking, setShowOrderTracking] = useState(false);
 
   useEffect(() => {
     const user = apiService.getUser();
@@ -42,6 +47,15 @@ export default function App() {
     const handlePopState = () => {
       const path = window.location.pathname;
       setCurrentPath(path);
+      if (path === '/') {
+        document.title = 'Toko Listrik Jaya UMKM | Toko Peralatan Listrik Terlengkap & Bergaransi SNI';
+      } else if (path === '/services') {
+        document.title = 'Katalog Produk Peralatan Listrik - Toko Listrik Jaya UMKM';
+      } else if (path === '/blog') {
+        document.title = 'Artikel & Tips Keamanan Listrik - Toko Listrik Jaya UMKM';
+      } else if (path === '/admin') {
+        document.title = 'CMS Admin Dashboard - Toko Listrik Jaya UMKM';
+      }
       if (path === '/admin' || path === '/login') {
         const u = apiService.getUser();
         if (u) {
@@ -107,17 +121,20 @@ export default function App() {
       {/* Public Web Layout */}
       {!inAdminPanel && (
         <>
-          <Header onOpenAdmin={handleOpenAdmin} />
+          <Header 
+            onOpenAdmin={handleOpenAdmin} 
+            onOpenOrderTracking={() => setShowOrderTracking(true)} 
+          />
           
           <main className="w-full flex flex-col items-center justify-center">
             {isAllServices ? (
-              <AllServicesPage onBack={navigateToHome} />
+              <AllServicesPage onBack={navigateToHome} onOrderProduct={(p) => setOrderProduct(p)} />
             ) : isAllBlog ? (
               <AllBlogPage onBack={navigateToHome} />
             ) : serviceCategorySlug ? (
-              <ServiceCategoryPage categorySlug={serviceCategorySlug} onBack={navigateToHome} />
+              <ServiceCategoryPage categorySlug={serviceCategorySlug} onBack={navigateToHome} onOrderProduct={(p) => setOrderProduct(p)} />
             ) : serviceSlug ? (
-              <ServiceDetailPage slug={serviceSlug} onBack={navigateToHome} />
+              <ServiceDetailPage slug={serviceSlug} onBack={navigateToHome} onOrderProduct={(p) => setOrderProduct(p)} />
             ) : blogSlug ? (
               <BlogDetailPage slug={blogSlug} onBack={navigateToHome} />
             ) : customPageSlug ? (
@@ -125,7 +142,7 @@ export default function App() {
             ) : (
               <>
                 <HeroSlider />
-                <ServicesSection />
+                <ServicesSection onOrderProduct={(p) => setOrderProduct(p)} />
                 <AboutSection />
                 <BlogSection />
                 <ContactSection />
@@ -133,8 +150,24 @@ export default function App() {
             )}
           </main>
 
+          <WhatsAppButton />
           <Footer />
         </>
+      )}
+
+      {/* Customer Checkout Order Modal */}
+      {orderProduct && (
+        <OrderModal 
+          product={orderProduct} 
+          onClose={() => setOrderProduct(null)} 
+        />
+      )}
+
+      {/* Customer Order Tracking Status Modal */}
+      {showOrderTracking && (
+        <OrderTrackingModal 
+          onClose={() => setShowOrderTracking(false)} 
+        />
       )}
 
       {/* Admin Login Overlay */}

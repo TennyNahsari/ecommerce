@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sparkles, Menu, X, Lock } from 'lucide-react';
 import { apiService } from '../services/api';
 
-export default function Header({ onOpenAdmin }) {
+export default function Header({ onOpenAdmin, onOpenOrderTracking }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [navLinks, setNavLinks] = useState([
@@ -33,12 +33,13 @@ export default function Header({ onOpenAdmin }) {
   }, []);
 
   const handleLinkClick = (e, link) => {
-    const url = link.url || link.href;
+    const url = (link && (link.url || link.href)) || '';
+    if (!url) return;
     const isAnchor = url.startsWith('#');
     const isCurrentHome = window.location.pathname === '/';
 
     if (url.startsWith('/')) {
-      e.preventDefault();
+      if (e) e.preventDefault();
       window.history.pushState({}, '', url);
       window.dispatchEvent(new Event('popstate'));
       setMobileMenuOpen(false);
@@ -46,23 +47,27 @@ export default function Header({ onOpenAdmin }) {
     }
 
     if (isAnchor && !isCurrentHome) {
-      e.preventDefault();
+      if (e) e.preventDefault();
       window.history.pushState({}, '', '/' + url);
       window.dispatchEvent(new Event('popstate'));
       setMobileMenuOpen(false);
       setTimeout(() => {
-        const element = document.querySelector(url);
-        if (element) element.scrollIntoView({ behavior: 'smooth' });
+        try {
+          const element = document.querySelector(url);
+          if (element) element.scrollIntoView({ behavior: 'smooth' });
+        } catch (err) {}
       }, 100);
       return;
     }
 
     if (isAnchor && isCurrentHome) {
-      e.preventDefault();
-      const element = document.querySelector(url);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
+      if (e) e.preventDefault();
+      try {
+        const element = document.querySelector(url);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      } catch (err) {}
       setMobileMenuOpen(false);
     }
   };
@@ -115,14 +120,13 @@ export default function Header({ onOpenAdmin }) {
         </div>
 
         {/* Right Column: CTA */}
-        <div className="hidden md:flex flex-1 items-center justify-end gap-4">
-          <a 
-            href="#contact" 
-            onClick={(e) => handleLinkClick(e, { url: '#contact' })} 
-            className="btn-primary py-2.5 px-5 text-sm whitespace-nowrap"
+        <div className="hidden md:flex flex-1 items-center justify-end gap-3">
+          <button
+            onClick={onOpenOrderTracking}
+            className="btn-secondary py-2.5 px-4 text-xs font-bold whitespace-nowrap border border-white/10 hover:border-indigo-400/50"
           >
-            Pesan Sekarang
-          </a>
+            Cek Status Pesanan
+          </button>
         </div>
 
         {/* Mobile Menu Toggle */}

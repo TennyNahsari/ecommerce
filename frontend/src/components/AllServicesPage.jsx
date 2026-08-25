@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { apiService } from '../services/api';
-import { ArrowLeft, Layout, Code, TrendingUp, Sparkles, CheckCircle2, ArrowUpRight, Tag, Layers, Search } from 'lucide-react';
+import { apiService, parseJSON } from '../services/api';
+import { ArrowLeft, Layout, Code, TrendingUp, Sparkles, CheckCircle2, ArrowUpRight, Tag, Layers, Search, ArrowRight } from 'lucide-react';
 
 const iconMap = {
   Layout: Layout,
@@ -9,10 +9,10 @@ const iconMap = {
   Sparkles: Sparkles,
 };
 
-export default function AllServicesPage({ onBack }) {
+export default function AllServicesPage({ onBack, onOrderProduct }) {
   const [services, setServices] = useState([]);
-  const [categories, setCategories] = useState([{ name: 'ALL', slug: 'all' }]);
-  const [filter, setFilter] = useState('ALL');
+  const [categories, setCategories] = useState([{ name: 'SEMUA', slug: 'all' }]);
+  const [filter, setFilter] = useState('SEMUA');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -26,7 +26,7 @@ export default function AllServicesPage({ onBack }) {
         ]);
         setServices(servData || []);
         if (catData && catData.length > 0) {
-          setCategories([{ name: 'ALL', slug: 'all' }, ...catData]);
+          setCategories([{ name: 'SEMUA', slug: 'all' }, ...catData]);
         }
       } catch (e) {}
       setLoading(false);
@@ -35,7 +35,7 @@ export default function AllServicesPage({ onBack }) {
   }, []);
 
   const filteredServices = services.filter(s => {
-    const matchesFilter = filter === 'ALL' || 
+    const matchesFilter = filter === 'SEMUA' || filter === 'ALL' || 
       (s.category_name && s.category_name.toLowerCase().includes(filter.toLowerCase())) ||
       (s.category_slug && s.category_slug === filter.toLowerCase());
     const matchesSearch = !searchQuery || 
@@ -64,7 +64,7 @@ export default function AllServicesPage({ onBack }) {
     return (
       <div className="subpage-top-clearance min-h-screen pb-20 flex flex-col items-center justify-center text-center">
         <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-xs text-slate-400">Loading full agency capabilities directory...</p>
+        <p className="text-xs text-slate-400">Memuat katalog produk peralatan listrik...</p>
       </div>
     );
   }
@@ -80,19 +80,19 @@ export default function AllServicesPage({ onBack }) {
             className="inline-flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-indigo-500/50 transition-all shadow-lg"
           >
             <ArrowLeft className="w-4 h-4 text-indigo-400" />
-            <span>Back to Home</span>
+            <span>Kembali ke Beranda</span>
           </button>
         </div>
 
         {/* Directory Header Banner */}
         <div className="glass-panel p-8 md:p-12 rounded-3xl border border-indigo-500/30 shadow-2xl mb-12 w-full text-center flex flex-col items-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -z-10" />
-          <div className="badge-glow mb-3 mx-auto">Full Capabilities Directory</div>
+          <div className="badge-glow mb-3 mx-auto">Katalog Peralatan Listrik Lengkap</div>
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center">
-            All Agency Services & Solutions
+            Semua Produk Peralatan Listrik
           </h1>
           <p className="text-slate-300 text-sm md:text-base max-w-2xl text-center leading-relaxed mb-6">
-            Explore our complete spectrum of digital marketing, UI/UX design, React full-stack engineering, and brand strategy capabilities.
+            Jelajahi produk listrik lengkap dari Toko Listrik Jaya UMKM: kabel, stop kontak, sakelar, lampu LED, MCB, dan perkakas teknisi berstandar SNI.
           </p>
 
           {/* Search Bar */}
@@ -100,7 +100,7 @@ export default function AllServicesPage({ onBack }) {
             <Search className="w-4 h-4 text-slate-400 absolute left-4 top-3.5" />
             <input 
               type="text"
-              placeholder="Search services or capabilities..."
+              placeholder="Cari kabel, lampu LED, stop kontak, sakelar..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="glass-input w-full pl-11 pr-4 py-2.5 text-xs text-white"
@@ -125,11 +125,11 @@ export default function AllServicesPage({ onBack }) {
           ))}
         </div>
 
-        {/* Services Grid */}
+        {/* Services Grid with Explicit !important Spacing */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
           {filteredServices.map((service) => {
             const IconComponent = iconMap[service.icon_name] || Layout;
-            const features = typeof service.features === 'string' ? JSON.parse(service.features) : (service.features || []);
+            const features = parseJSON(service.features, []);
             const hasCategory = Boolean(service.category_name);
             const catName = service.category_name;
             const catSlug = service.category_slug || service.slug;
@@ -138,50 +138,95 @@ export default function AllServicesPage({ onBack }) {
               <div 
                 key={service.id || service.slug} 
                 onClick={() => handleServiceClick(service.slug)}
-                className="glass-card p-8 flex flex-col justify-between group relative overflow-hidden cursor-pointer"
+                className="glass-card product-card-container group relative overflow-hidden cursor-pointer border border-white/10 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300"
               >
-                <div>
-                  {hasCategory && (
-                    <div className="mb-4">
+                <div className="flex flex-col h-full justify-between">
+                  <div>
+                    {/* Product Image Header */}
+                    <div className="relative w-full product-card-image-box bg-slate-900 border border-white/10 group-hover:border-indigo-500/40 transition-colors shrink-0">
+                      {service.image_url ? (
+                        <img 
+                          src={service.image_url} 
+                          alt={service.title} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-indigo-500/10 text-indigo-400">
+                          <IconComponent className="w-12 h-12" />
+                        </div>
+                      )}
+
+                      {hasCategory && (
+                        <div className="absolute top-3 left-3">
+                          <button
+                            onClick={(e) => handleCategoryClick(e, catSlug)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/85 backdrop-blur-md border border-white/20 text-[11px] font-bold text-indigo-300 hover:text-white transition-colors shadow-md"
+                          >
+                            <Tag className="w-3 h-3 text-indigo-400" />
+                            <span>{catName}</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Product Title */}
+                    <h3 className="product-card-title text-white group-hover:text-indigo-300 transition-colors flex items-start justify-between gap-2">
+                      <span>{service.title}</span>
+                      <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 shrink-0 mt-1 transition-colors" />
+                    </h3>
+
+                    {/* Price Badge */}
+                    <div className="mt-2 mb-3">
+                      {service.price && parseFloat(service.price) > 0 ? (
+                        <span className="text-base font-extrabold text-emerald-400 font-mono">
+                          Rp {Number(service.price).toLocaleString('id-ID')}
+                        </span>
+                      ) : (
+                        <span className="text-xs font-semibold text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">
+                          Minta Penawaran Harga
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Product Summary */}
+                    <p className="product-card-summary line-clamp-3">
+                      {service.summary}
+                    </p>
+                  </div>
+
+                  <div>
+                    {/* Features Checklist */}
+                    <div className="product-card-features-box">
+                      {features.slice(0, 4).map((feat, idx) => (
+                        <div key={idx} className="product-card-feature-item text-slate-400">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                          <span>{feat}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
                       <button
-                        onClick={(e) => handleCategoryClick(e, catSlug)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[11px] font-bold text-indigo-400 hover:bg-indigo-500/20 hover:border-indigo-500/40 transition-colors"
+                        onClick={(e) => { e.stopPropagation(); handleServiceClick(service.slug); }}
+                        className="product-card-btn flex-1 text-center font-bold text-slate-300 hover:text-white rounded-xl border border-white/10 hover:border-white/20 bg-white/5 transition-all flex items-center justify-center gap-1 text-[11px]"
                       >
-                        <Tag className="w-3 h-3" />
-                        <span>{catName}</span>
+                        <span>Detail</span>
+                      </button>
+
+                      <button
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          if (onOrderProduct) onOrderProduct(service); 
+                        }}
+                        className="product-card-btn flex-1 text-center font-bold text-white rounded-xl bg-indigo-600 hover:bg-indigo-500 shadow-md transition-all flex items-center justify-center gap-1 text-[11px]"
+                      >
+                        <span>Pesan</span>
+                        <ArrowRight className="w-3 h-3" />
                       </button>
                     </div>
-                  )}
-
-                  <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-6 group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-300">
-                    <IconComponent className="w-7 h-7" />
-                  </div>
-
-                  <h3 className="text-xl font-bold text-white mb-3 flex items-center justify-between">
-                    <span>{service.title}</span>
-                    <ArrowUpRight className="w-5 h-5 text-slate-500 group-hover:text-indigo-400 transition-all" />
-                  </h3>
-
-                  <p className="text-xs text-slate-300 mb-6 line-clamp-3 leading-relaxed">
-                    {service.summary}
-                  </p>
-
-                  <div className="space-y-2 mb-6">
-                    {features.slice(0, 3).map((feat, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-xs text-slate-400">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                        <span>{feat}</span>
-                      </div>
-                    ))}
                   </div>
                 </div>
-
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleServiceClick(service.slug); }}
-                  className="w-full text-center text-xs font-bold text-indigo-400 hover:text-indigo-300 py-3 rounded-xl border border-indigo-500/20 hover:border-indigo-500/50 bg-indigo-500/5 transition-all"
-                >
-                  View Detail Page &rarr;
-                </button>
               </div>
             );
           })}

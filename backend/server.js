@@ -25,6 +25,7 @@ const menusRoutes = require('./routes/menus');
 const mediaRoutes = require('./routes/media');
 const inquiriesRoutes = require('./routes/inquiries');
 const settingsRoutes = require('./routes/settings');
+const ordersRoutes = require('./routes/orders');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/sliders', slidersRoutes);
@@ -35,6 +36,7 @@ app.use('/api/menus', menusRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/inquiries', inquiriesRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/orders', ordersRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

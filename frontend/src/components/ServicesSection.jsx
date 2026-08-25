@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Code, TrendingUp, Sparkles, CheckCircle2, ArrowUpRight, Tag, ArrowRight } from 'lucide-react';
-import { apiService } from '../services/api';
+import { apiService, parseJSON } from '../services/api';
 
 const iconMap = {
   Layout: Layout,
@@ -9,7 +9,7 @@ const iconMap = {
   Sparkles: Sparkles,
 };
 
-export default function ServicesSection() {
+export default function ServicesSection({ onOrderProduct }) {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function ServicesSection() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Option B: Limit to top 4 featured services on Homepage
+  // Limit to top 4 featured services on Homepage
   const displayedServices = services.slice(0, 4);
 
   return (
@@ -60,11 +60,11 @@ export default function ServicesSection() {
           </p>
         </div>
 
-        {/* Services Grid (Showcase 4 Featured) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-14">
+        {/* Services Grid (Spacious Product Cards with Explicit !important Spacing) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full mb-16">
           {displayedServices.map((service) => {
             const IconComponent = iconMap[service.icon_name] || Layout;
-            const features = typeof service.features === 'string' ? JSON.parse(service.features) : (service.features || []);
+            const features = parseJSON(service.features, []);
             const hasCategory = Boolean(service.category_name);
             const catName = service.category_name;
             const catSlug = service.category_slug || service.slug;
@@ -73,60 +73,105 @@ export default function ServicesSection() {
               <div 
                 key={service.id || service.slug} 
                 onClick={() => handleServiceClick(service.slug)}
-                className="glass-card p-7 flex flex-col justify-between group relative overflow-hidden cursor-pointer"
+                className="glass-card product-card-container group relative overflow-hidden cursor-pointer border border-white/10 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300"
               >
                 {/* Background Accent Glow */}
                 <div className="absolute -top-12 -right-12 w-28 h-28 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/25 transition-all" />
 
-                <div>
-                  {hasCategory && (
-                    <div className="mb-4">
+                <div className="flex flex-col h-full justify-between">
+                  <div>
+                    {/* Product Image Header */}
+                    <div className="relative w-full product-card-image-box bg-slate-900 border border-white/10 group-hover:border-indigo-500/40 transition-colors shrink-0">
+                      {service.image_url ? (
+                        <img 
+                          src={service.image_url} 
+                          alt={service.title} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-indigo-500/10 text-indigo-400">
+                          <IconComponent className="w-12 h-12" />
+                        </div>
+                      )}
+
+                      {hasCategory && (
+                        <div className="absolute top-3 left-3">
+                          <button
+                            onClick={(e) => handleCategoryClick(e, catSlug)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/85 backdrop-blur-md border border-white/20 text-[11px] font-bold text-indigo-300 hover:text-white transition-colors shadow-md"
+                            title={`Lihat produk dalam kategori "${catName}"`}
+                          >
+                            <Tag className="w-3 h-3 text-indigo-400" />
+                            <span>{catName}</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Product Title */}
+                    <h3 className="product-card-title text-white group-hover:text-indigo-300 transition-colors flex items-start justify-between gap-2">
+                      <span>{service.title}</span>
+                      <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 shrink-0 mt-1 transition-colors" />
+                    </h3>
+
+                    {/* Price Badge */}
+                    <div className="mt-2 mb-3">
+                      {service.price && parseFloat(service.price) > 0 ? (
+                        <span className="text-base font-extrabold text-emerald-400 font-mono">
+                          Rp {Number(service.price).toLocaleString('id-ID')}
+                        </span>
+                      ) : (
+                        <span className="text-xs font-semibold text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">
+                          Minta Penawaran Harga
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Product Summary */}
+                    <p className="product-card-summary line-clamp-3">
+                      {service.summary}
+                    </p>
+                  </div>
+
+                  <div>
+                    {/* Features Checklist */}
+                    <div className="product-card-features-box">
+                      {features.slice(0, 3).map((feat, idx) => (
+                        <div key={idx} className="product-card-feature-item text-slate-400">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                          <span>{feat}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Card Footer CTA Buttons */}
+                    <div className="flex gap-2">
                       <button
-                        onClick={(e) => handleCategoryClick(e, catSlug)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[11px] font-bold text-indigo-400 hover:bg-indigo-500/20 hover:border-indigo-500/40 transition-colors"
-                        title={`View all services in category "${catName}"`}
+                        onClick={(e) => { e.stopPropagation(); handleServiceClick(service.slug); }}
+                        className="product-card-btn flex-1 text-center font-bold text-slate-300 hover:text-white rounded-xl border border-white/10 hover:border-white/20 bg-white/5 transition-all flex items-center justify-center gap-1 text-[11px]"
                       >
-                        <Tag className="w-3 h-3" />
-                        <span>{catName}</span>
+                        <span>Detail</span>
+                      </button>
+
+                      <button
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          if (onOrderProduct) onOrderProduct(service); 
+                        }}
+                        className="product-card-btn flex-1 text-center font-bold text-white rounded-xl bg-indigo-600 hover:bg-indigo-500 shadow-md transition-all flex items-center justify-center gap-1 text-[11px]"
+                      >
+                        <span>Pesan</span>
+                        <ArrowRight className="w-3 h-3" />
                       </button>
                     </div>
-                  )}
-
-                  <div className="w-13 h-13 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-5 group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-300">
-                    <IconComponent className="w-6 h-6" />
-                  </div>
-
-                  <h3 className="text-lg font-bold text-white mb-2.5 flex items-center justify-between">
-                    <span>{service.title}</span>
-                    <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 transition-all" />
-                  </h3>
-
-                  <p className="text-xs text-slate-300 mb-5 line-clamp-3 leading-relaxed">
-                    {service.summary}
-                  </p>
-
-                  <div className="space-y-2 mb-6">
-                    {features.slice(0, 3).map((feat, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-[11px] text-slate-400">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                        <span>{feat}</span>
-                      </div>
-                    ))}
                   </div>
                 </div>
-
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleServiceClick(service.slug); }}
-                  className="w-full text-center text-xs font-semibold text-indigo-400 hover:text-indigo-300 py-2.5 rounded-lg border border-indigo-500/20 hover:border-indigo-500/50 bg-indigo-500/5 transition-all"
-                >
-                  View Detail Page &rarr;
-                </button>
               </div>
             );
           })}
         </div>
 
-        {/* Option B: Explore All Services CTA */}
+        {/* Explore All Services CTA */}
         <div className="flex items-center justify-center">
           <button 
             onClick={handleExploreAllServices}

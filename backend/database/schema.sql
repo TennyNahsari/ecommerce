@@ -89,40 +89,45 @@ CREATE TABLE IF NOT EXISTS services (
     summary TEXT,
     description TEXT,
     features JSONB,
+    image_url TEXT,
     order_index INT DEFAULT 0,
+    price NUMERIC(12,2) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE services ADD COLUMN IF NOT EXISTS image_url TEXT;
+ALTER TABLE services ADD COLUMN IF NOT EXISTS price NUMERIC(12,2) DEFAULT 0;
+
 TRUNCATE TABLE services CASCADE;
 
-INSERT INTO services (id, title, slug, category_id, icon_name, summary, description, features, order_index) VALUES
+INSERT INTO services (id, title, slug, category_id, icon_name, summary, description, features, image_url, order_index, price) VALUES
 -- Category 1: Kabel & Instalasi Listrik (3 items)
-(1, 'Kabel Listrik NYM 2x1.5mm Tembaga Murni', 'kabel-nym-2x1-5mm', 1, 'Zap', 'Kabel kawat tembaga murni isi 2 berlapis PVC ganda aman untuk instalasi listrik tanam dinding.', '<h2>Kabel Listrik Berkualitas Standar SNI</h2><p>Kabel NYM 2x1.5mm sangat cocok digunakan untuk instalasi penerangan dan stop kontak rumah tinggal. Dibuat dari kawat tembaga murni berkualitas tinggi dengan isolasi PVC tebal yang tahan panas dan arus pendek.</p>', '["Standard Nasional Indonesia (SNI)", "Konduktor Tembaga Murni 99.9%", "Isolasi Double Layer Tahan Panas", "Panjang Roll 50m / 100m"]'::jsonb, 1),
+(1, 'Kabel Listrik NYM 2x1.5mm Tembaga Murni', 'kabel-nym-2x1-5mm', 1, 'Zap', 'Kabel kawat tembaga murni isi 2 berlapis PVC ganda aman untuk instalasi listrik tanam dinding.', '<h2>Kabel Listrik Berkualitas Standar SNI</h2><p>Kabel NYM 2x1.5mm sangat cocok digunakan untuk instalasi penerangan dan stop kontak rumah tinggal. Dibuat dari kawat tembaga murni berkualitas tinggi dengan isolasi PVC tebal yang tahan panas dan arus pendek.</p>', '["Standard Nasional Indonesia (SNI)", "Konduktor Tembaga Murni 99.9%", "Isolasi Double Layer Tahan Panas", "Panjang Roll 50m / 100m"]'::jsonb, 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=800', 1, 385000),
 
-(2, 'Kabel Serabut Fleksibel NYMHY 2x0.75mm', 'kabel-serabut-nymhy-2x0-75mm', 1, 'Cpu', 'Kabel fleksibel lentur sangat ideal untuk sambungan elektronik, lampu gantung, dan peralatan rumah.', '<h2>Solusi Kabel Lentur Fleksibel</h2><p>Kabel NYMHY 2x0.75mm memiliki serat tembaga halus yang mudah dibengkokkan tanpa mudah putus. Cocok untuk perpanjangan colokan listrik dan alat rumah tangga seperti kipas angin, TV, dan lampu.</p>', '["Kawat Tembaga Serabut Halus", "Sangat Lentur & Mudah Dipasang", "Anti Panas & Tidak Mudah Getas", "Pilihan Warna Putih & Hitam"]'::jsonb, 2),
+(2, 'Kabel Serabut Fleksibel NYMHY 2x0.75mm', 'kabel-serabut-nymhy-2x0-75mm', 1, 'Cpu', 'Kabel fleksibel lentur sangat ideal untuk sambungan elektronik, lampu gantung, dan peralatan rumah.', '<h2>Solusi Kabel Lentur Fleksibel</h2><p>Kabel NYMHY 2x0.75mm memiliki serat tembaga halus yang mudah dibengkokkan tanpa mudah putus. Cocok untuk perpanjangan colokan listrik dan alat rumah tangga seperti kipas angin, TV, dan lampu.</p>', '["Kawat Tembaga Serabut Halus", "Sangat Lentur & Mudah Dipasang", "Anti Panas & Tidak Mudah Getas", "Pilihan Warna Putih & Hitam"]'::jsonb, 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800', 2, 165000),
 
-(3, 'Pipa Conduit PVC 20mm & Accessories Set', 'pipa-conduit-pvc-20mm', 1, 'Shield', 'Pipa pelindung kabel dari gigitan tikus dan benturan keras, lengkap dengan klem dan elbow.', '<h2>Proteksi Maksimal Instalasi Listrik</h2><p>Pipa conduit PVC berdiameter 20mm melindungi jalur kabel dari kerusakan fisik, kelembapan dinding, dan bahaya gigitan hama. Tahan pembakaran (self-extinguishing).</p>', '["Bahan PVC High-Impact Tahan Benturan", "Self-Extinguishing (Anti Api Meredam)", "Lengkap Elbow, Tee, & Klem Dinding", "Tersedia Ukuran 20mm & 25mm"]'::jsonb, 3),
+(3, 'Pipa Conduit PVC 20mm & Accessories Set', 'pipa-conduit-pvc-20mm', 1, 'Shield', 'Pipa pelindung kabel dari gigitan tikus dan benturan keras, lengkap dengan klem dan elbow.', '<h2>Proteksi Maksimal Instalasi Listrik</h2><p>Pipa conduit PVC berdiameter 20mm melindungi jalur kabel dari kerusakan fisik, kelembapan dinding, dan bahaya gigitan hama. Tahan pembakaran (self-extinguishing).</p>', '["Bahan PVC High-Impact Tahan Benturan", "Self-Extinguishing (Anti Api Meredam)", "Lengkap Elbow, Tee, & Klem Dinding", "Tersedia Ukuran 20mm & 25mm"]'::jsonb, 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=800', 3, 35000),
 
 -- Category 2: Stop Kontak, Sakelar & Steker (3 items)
-(4, 'Stop Kontak Arde 4 Lubang + Sakelar Indikator', 'stop-kontak-arde-4-lubang', 2, 'Power', 'Stop kontak multi-soket dengan kabel 3 meter, sakelar sentral, dan sistem pengaman anak (child safety).', '<h2>Stop Kontak Aman & Tahan Panas</h2><p>Stop kontak arde 4 colokan dilengkapi plat kuningan tebal dan pengaman otomatis grounding. Menggunakan material poly-carbonate tahan panas hingga 850 derajat Celcius.</p>', '["4 Lubang Colokan Arde Kuningan", "Kabel Tembaga Murni Panjang 3 Meter", "Sakelar On/Off Indikator LED", "Child Safety Shutter Locking"]'::jsonb, 4),
+(4, 'Stop Kontak Arde 4 Lubang + Sakelar Indikator', 'stop-kontak-arde-4-lubang', 2, 'Power', 'Stop kontak multi-soket dengan kabel 3 meter, sakelar sentral, dan sistem pengaman anak (child safety).', '<h2>Stop Kontak Aman & Tahan Panas</h2><p>Stop kontak arde 4 colokan dilengkapi plat kuningan tebal dan pengaman otomatis grounding. Menggunakan material poly-carbonate tahan panas hingga 850 derajat Celcius.</p>', '["4 Lubang Colokan Arde Kuningan", "Kabel Tembaga Murni Panjang 3 Meter", "Sakelar On/Off Indikator LED", "Child Safety Shutter Locking"]'::jsonb, 'https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?q=80&w=800', 4, 68000),
 
-(5, 'Sakelar Ganda Double Inbow Tanam Dinding', 'sakelar-ganda-double-inbow', 2, 'ToggleLeft', 'Sakelar tanam dinding 2 tombol dengan desain minimalis elegan dan kontak kuningan presisi.', '<h2>Sakelar Minimalis Berkualitas Modern</h2><p>Sakelar ganda inbow cocok untuk menyalakan 2 jalur lampu secara terpisah. Menggunakan mekanisme cetekan yang halus dan awet digunakan puluhan ribu kali.</p>', '["Material Bakelite Tahan Bakar", "Terminal Screw Kuningan Presisi", "Desain Minimalis Inbow Dinding", "Daya Kendali Hingga 10A 250V"]'::jsonb, 5),
+(5, 'Sakelar Ganda Double Inbow Tanam Dinding', 'sakelar-ganda-double-inbow', 2, 'ToggleLeft', 'Sakelar tanam dinding 2 tombol dengan desain minimalis elegan dan kontak kuningan presisi.', '<h2>Sakelar Minimalis Berkualitas Modern</h2><p>Sakelar ganda inbow cocok untuk menyalakan 2 jalur lampu secara terpisah. Menggunakan mekanisme cetekan yang halus dan awet digunakan puluhan ribu kali.</p>', '["Material Bakelite Tahan Bakar", "Terminal Screw Kuningan Presisi", "Desain Minimalis Inbow Dinding", "Daya Kendali Hingga 10A 250V"]'::jsonb, 'https://images.unsplash.com/photo-1545259742-b4d6a576d729?q=80&w=800', 5, 24500),
 
-(6, 'Steker Arde Heavy Duty Tahan Panas 16A', 'steker-arde-heavy-duty', 2, 'Plug', 'Steker listrik male heavy duty cocok untuk peralatan daya besar seperti AC, kulkas, dan mesin.', '<h2>Steker Kualitas Industri & Rumah</h2><p>Steker arde berbahan karet sintetis elastis tahan banting dan kuningan jepit tebal yang tidak gampang kendur atau memicu percikan api.</p>', '["Kapasitas Beban Hingga 16A 3500W", "Pin Kuningan Solid Tebal", "Casing Tahan Banting & Panas", "Mudah Dipasang Kencang"]'::jsonb, 6),
+(6, 'Steker Arde Heavy Duty Tahan Panas 16A', 'steker-arde-heavy-duty', 2, 'Plug', 'Steker listrik male heavy duty cocok untuk peralatan daya besar seperti AC, kulkas, dan mesin.', '<h2>Steker Kualitas Industri & Rumah</h2><p>Steker arde berbahan karet sintetis elastis tahan banting dan kuningan jepit tebal yang tidak gampang kendur atau memicu percikan api.</p>', '["Kapasitas Beban Hingga 16A 3500W", "Pin Kuningan Solid Tebal", "Casing Tahan Banting & Panas", "Mudah Dipasang Kencang"]'::jsonb, 'https://images.unsplash.com/photo-1555963966-b7ae5404b6ed?q=80&w=800', 6, 18500),
 
 -- Category 3: Lampu & Penghemat Energi (3 items)
-(7, 'Lampu LED Bulb 12W Super Bright White', 'lampu-led-bulb-12w', 3, 'Sun', 'Lampu bohlam LED 12 Watt setara lampu pijar 100W dengan efisiensi energi 85% dan cahaya terang merata.', '<h2>Pencahayaan Terang Hemat Biaya</h2><p>Lampu LED Bulb 12W menghasilkan cahaya putih bersih (Cool Daylight 6500K) tanpa gelombang UV berbahaya. Ramah lingkungan dan tidak menyilaukan mata.</p>', '["Daya 12W Setara Pijar 100W", "Intensitas Cahaya 1200 Lumens", "Umur Pakai Hingga 15.000 Jam", "Garansi Toko Resmi 1 Tahun"]'::jsonb, 7),
+(7, 'Lampu LED Bulb 12W Super Bright White', 'lampu-led-bulb-12w', 3, 'Sun', 'Lampu bohlam LED 12 Watt setara lampu pijar 100W dengan efisiensi energi 85% dan cahaya terang merata.', '<h2>Pencahayaan Terang Hemat Biaya</h2><p>Lampu LED Bulb 12W menghasilkan cahaya putih bersih (Cool Daylight 6500K) tanpa gelombang UV berbahaya. Ramah lingkungan dan tidak menyilaukan mata.</p>', '["Daya 12W Setara Pijar 100W", "Intensitas Cahaya 1200 Lumens", "Umur Pakai Hingga 15.000 Jam", "Garansi Toko Resmi 1 Tahun"]'::jsonb, 'https://images.unsplash.com/photo-1550985616-10810253b84d?q=80&w=800', 7, 42000),
 
-(8, 'Lampu Downlight LED Panel Outbow 9W', 'lampu-downlight-led-9w', 3, 'Disc', 'Lampu plafon downlight model menempel (outbow) ramping, mudah dipasang tanpa perlu bobok plafon.', '<h2>Penerangan Plafon Minimalis</h2><p>Downlight LED Panel 9W dengan diffuser mika berkualitas tinggi yang menyebarkan cahaya secara halus dan estetik untuk ruang tamu, toko, dan kantor.</p>', '["Pemasangan Outbow Ramping Modern", "Konsumsi Daya Irit 9 Watt", "Frame Aluminium Disipasi Panas", "Tersedia Warm White & Cool White"]'::jsonb, 8),
+(8, 'Lampu Downlight LED Panel Outbow 9W', 'lampu-downlight-led-9w', 3, 'Disc', 'Lampu plafon downlight model menempel (outbow) ramping, mudah dipasang tanpa perlu bobok plafon.', '<h2>Penerangan Plafon Minimalis</h2><p>Downlight LED Panel 9W dengan diffuser mika berkualitas tinggi yang menyebarkan cahaya secara halus dan estetik untuk ruang tamu, toko, dan kantor.</p>', '["Pemasangan Outbow Ramping Modern", "Konsumsi Daya Irit 9 Watt", "Frame Aluminium Disipasi Panas", "Tersedia Warm White & Cool White"]'::jsonb, 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?q=80&w=800', 8, 55000),
 
-(9, 'Lampu Sorot LED Outdoor 50W IP66 Waterproof', 'lampu-sorot-led-outdoor-50w', 3, 'Eye', 'Lampu tembak outdoor tahan hujan deras dan debu, sangat cocok untuk sorot toko, papan nama, & lapangan.', '<h2>Lampu Sorot Outdoor Tahan Cuaca</h2><p>Lampu sorot LED 50W outdoor menggunakan casing kaca tempered tahan benturan dan struktur aluminium waterproof IP66. Sangat terang untuk pencahayaan malam hari.</p>', '["Standar Ketahanan Air & Debu IP66", "Daya Terang 5000 Lumens", "Body Aluminium Die-Cast Solid", "Garansi Tukar Baru 6 Bulan"]'::jsonb, 9),
+(9, 'Lampu Sorot LED Outdoor 50W IP66 Waterproof', 'lampu-sorot-led-outdoor-50w', 3, 'Eye', 'Lampu tembak outdoor tahan hujan deras dan debu, sangat cocok untuk sorot toko, papan nama, & lapangan.', '<h2>Lampu Sorot Outdoor Tahan Cuaca</h2><p>Lampu sorot LED 50W outdoor menggunakan casing kaca tempered tahan benturan dan struktur aluminium waterproof IP66. Sangat terang untuk pencahayaan malam hari.</p>', '["Standar Ketahanan Air & Debu IP66", "Daya Terang 5000 Lumens", "Body Aluminium Die-Cast Solid", "Garansi Tukar Baru 6 Bulan"]'::jsonb, 'https://images.unsplash.com/photo-1507646227500-4d389b0012be?q=80&w=800', 9, 175000),
 
 -- Category 4: Komponen & Pengaman Listrik (3 items)
-(10, 'MCB Pemutus Arus 1 Phase 16A Original', 'mcb-pengaman-listrik-16a', 4, 'Sliders', 'Sikring otomatis pemutus arus pendek (korsleting) dan beban lebih kapasitas 3500VA.', '<h2>Perlindungan Utama Instalasi Listrik</h2><p>MCB 1 Phase 16A merupakan komponen wajib untuk keamanan arus listrik. Memutus aliran secara otomatis saat terjadi korsleting atau pemakaian listrik berlebih.</p>', '["Kapasitas Arus 16 Ampere (3500W)", "Response Time Pemutus Sangat Cepat", "Sertifikasi SNI & IEC 60898", "Bisa Dipasang Pada Rel Din-Rail"]'::jsonb, 10),
+(10, 'MCB Pemutus Arus 1 Phase 16A Original', 'mcb-pengaman-listrik-16a', 4, 'Sliders', 'Sikring otomatis pemutus arus pendek (korsleting) dan beban lebih kapasitas 3500VA.', '<h2>Perlindungan Utama Instalasi Listrik</h2><p>MCB 1 Phase 16A merupakan komponen wajib untuk keamanan arus listrik. Memutus aliran secara otomatis saat terjadi korsleting atau pemakaian listrik berlebih.</p>', '["Kapasitas Arus 16 Ampere (3500W)", "Response Time Pemutus Sangat Cepat", "Sertifikasi SNI & IEC 60898", "Bisa Dipasang Pada Rel Din-Rail"]'::jsonb, 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=800', 10, 62000),
 
-(11, 'Fitting Lampu Gantung + Stop Kontak Kombinasi', 'fitting-lampu-kombinasi-stop-kontak', 4, 'Box', 'Fitting lampu gantung praktis yang dilengkapi colokan listrik samping untuk kemudahan kerja.', '<h2>Fitting Multifungsi Praktis</h2><p>Fitting kombinasi E27 berbahan kuningan tahan panas dengan 2 lubang colokan tambahan di sisi samping. Solusi praktis untuk warung dan bengkel.</p>', '["Drat Lampu Standar E27", "Dilengkapi 2 Colokan Listrik Samping", "Bahan Kuningan Anti Korosi", "Ringan & Mudah Dipasang"]'::jsonb, 11),
+(11, 'Fitting Lampu Gantung + Stop Kontak Kombinasi', 'fitting-lampu-kombinasi-stop-kontak', 4, 'Box', 'Fitting lampu gantung praktis yang dilengkapi colokan listrik samping untuk kemudahan kerja.', '<h2>Fitting Multifungsi Praktis</h2><p>Fitting kombinasi E27 berbahan kuningan tahan panas dengan 2 lubang colokan tambahan di sisi samping. Solusi praktis untuk warung dan bengkel.</p>', '["Drat Lampu Standar E27", "Dilengkapi 2 Colokan Listrik Samping", "Bahan Kuningan Anti Korosi", "Ringan & Mudah Dipasang"]'::jsonb, 'https://images.unsplash.com/photo-1540932239986-30128078f3c5?q=80&w=800', 11, 15000),
 
-(12, 'Paket Testpen Digital & Tang Potong Kabel', 'testpen-digital-tang-potong-set', 4, 'Wrench', 'Set perkakas wajib untuk pengecekan tegangan listrik AC/DC aman dan tang potong kabel presisi.', '<h2>Perkakas Teknisi & Teknisi Listrik</h2><p>Paket alat ukur testpen LCD indikator tegangan tanpa sentuh direct contact, lengkap dengan tang potong berbahan baja lapis isolasi karet tebal aman genggaman.</p>', '["Testpen Indikator Digital LCD", "Tang Potong Baja Chrome Vanadium", "Gagang Karet Lapisan Isolasi 1000V", "Praktis Untuk Pemeliharaan Listrik"]'::jsonb, 12);
+(12, 'Paket Testpen Digital & Tang Potong Kabel', 'testpen-digital-tang-potong-set', 4, 'Wrench', 'Set perkakas wajib untuk pengecekan tegangan listrik AC/DC aman dan tang potong kabel presisi.', '<h2>Perkakas Teknisi & Teknisi Listrik</h2><p>Paket alat ukur testpen LCD indikator tegangan tanpa sentuh direct contact, lengkap dengan tang potong berbahan baja lapis isolasi karet tebal aman genggaman.</p>', '["Testpen Indikator Digital LCD", "Tang Potong Baja Chrome Vanadium", "Gagang Karet Lapisan Isolasi 1000V", "Praktis Untuk Pemeliharaan Listrik"]'::jsonb, 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=800', 12, 85000);
 
 SELECT setval('services_id_seq', (SELECT MAX(id) FROM services));
 
@@ -189,7 +194,7 @@ INSERT INTO menus (id, label, url, order_index, is_external) VALUES
 
 SELECT setval('menus_id_seq', (SELECT MAX(id) FROM menus));
 
--- 9. Projects Table (Schema kept clean / disabled for portfolio removal)
+-- 9. Projects Table
 CREATE TABLE IF NOT EXISTS projects (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -228,7 +233,7 @@ CREATE TABLE IF NOT EXISTS media (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 12. Inquiries Table (Customer Orders & Product Inquiries)
+-- 12. Inquiries Table
 CREATE TABLE IF NOT EXISTS inquiries (
     id SERIAL PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
@@ -241,6 +246,65 @@ CREATE TABLE IF NOT EXISTS inquiries (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 13. Bank Accounts Seed in site_settings
+INSERT INTO site_settings (key, value) VALUES (
+    'bank_accounts',
+    '[
+        {
+            "id": 1,
+            "bank_name": "Bank BCA",
+            "account_number": "123-456-7890",
+            "account_holder": "Toko Listrik Jaya UMKM",
+            "logo_badge": "BCA"
+        },
+        {
+            "id": 2,
+            "bank_name": "Bank Mandiri",
+            "account_number": "987-654-3210-00",
+            "account_holder": "Toko Listrik Jaya UMKM",
+            "logo_badge": "MANDIRI"
+        },
+        {
+            "id": 3,
+            "bank_name": "Bank BRI",
+            "account_number": "0012-01-003456-50-8",
+            "account_holder": "Toko Listrik Jaya UMKM",
+            "logo_badge": "BRI"
+        }
+    ]'::jsonb
+) ON CONFLICT (key) DO NOTHING;
+
+-- 14. E-Commerce Orders Table
+CREATE TABLE IF NOT EXISTS orders (
+    id SERIAL PRIMARY KEY,
+    order_code VARCHAR(50) UNIQUE NOT NULL,
+    customer_name VARCHAR(255) NOT NULL,
+    customer_phone VARCHAR(50) NOT NULL,
+    customer_email VARCHAR(255),
+    shipping_address TEXT NOT NULL,
+    notes TEXT,
+    payment_method VARCHAR(50) DEFAULT 'BANK_TRANSFER',
+    bank_account_info TEXT,
+    total_amount NUMERIC(12,2) DEFAULT 0,
+    status VARCHAR(50) DEFAULT 'PENDING_PAYMENT',
+    proof_of_payment_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 15. E-Commerce Order Items Table
+CREATE TABLE IF NOT EXISTS order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INT REFERENCES orders(id) ON DELETE CASCADE,
+    service_id INT,
+    product_title VARCHAR(255) NOT NULL,
+    price NUMERIC(12,2) DEFAULT 0,
+    quantity INT DEFAULT 1,
+    subtotal NUMERIC(12,2) DEFAULT 0
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_services_slug ON services(slug);
 CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug);
+CREATE INDEX IF NOT EXISTS idx_orders_code ON orders(order_code);
+CREATE INDEX IF NOT EXISTS idx_orders_phone ON orders(customer_phone);
