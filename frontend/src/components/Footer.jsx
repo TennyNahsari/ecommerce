@@ -4,12 +4,12 @@ import { apiService } from '../services/api';
 
 export default function Footer() {
   const [footerSettings, setFooterSettings] = useState({
-    company_name: 'DigiAgency Aetheric',
-    company_bio: 'Enterprise digital agency engineering high-speed React web products, UI/UX design systems, and data-driven B2B growth marketing.',
-    office_address: 'Financial Tower Level 18, Pacific Boulevard, San Francisco, CA',
-    contact_email: 'hello@digiagency.com',
-    contact_phone: '+1 (555) 234-5678',
-    copyright_text: '© 2026 DigiAgency Aetheric. All rights reserved. Powered by React, Express & PostgreSQL.',
+    company_name: 'Toko Listrik Jaya UMKM',
+    company_bio: 'Pusat grosir & eceran peralatan listrik terpercaya untuk kebutuhan rumah tangga, instalasi gedung, toko, dan UMKM. Produk 100% berkualitas & berstandar SNI.',
+    office_address: 'Jl. Listrik Raya No. 45, Kompleks Niaga UMKM, Jakarta Pusat, DKI Jakarta',
+    contact_email: 'sales@tokolistrikjaya.com',
+    contact_phone: '+62 812-3456-7890',
+    copyright_text: '© 2026 Toko Listrik Jaya UMKM. Seluruh Hak Cipta Dilindungi.',
     social_linkedin: 'https://linkedin.com',
     social_twitter: 'https://twitter.com',
     social_github: 'https://github.com',
@@ -43,7 +43,7 @@ export default function Footer() {
                 <Sparkles className="w-5 h-5" />
               </div>
               <span className="font-heading text-xl font-extrabold text-white">
-                {footerSettings.company_name || 'DigiAgency'}
+                {footerSettings.company_name || 'Toko Listrik Jaya'}
               </span>
             </div>
 
@@ -100,22 +100,22 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Capabilities</h4>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Kategori Produk</h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
-              <li><a href="#services" className="hover:text-indigo-400 transition-colors">UI/UX Design Systems</a></li>
-              <li><a href="#services" className="hover:text-indigo-400 transition-colors">React & Node Web Apps</a></li>
-              <li><a href="#services" className="hover:text-indigo-400 transition-colors">SEO & Digital Growth</a></li>
-              <li><a href="#services" className="hover:text-indigo-400 transition-colors">Brand Strategy</a></li>
+              <li><a href="#services" className="hover:text-indigo-400 transition-colors">Kabel & Instalasi Listrik</a></li>
+              <li><a href="#services" className="hover:text-indigo-400 transition-colors">Stop Kontak & Sakelar</a></li>
+              <li><a href="#services" className="hover:text-indigo-400 transition-colors">Lampu LED Hemat Energi</a></li>
+              <li><a href="#services" className="hover:text-indigo-400 transition-colors">Komponen & Pengaman MCB</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Company</h4>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Informasi</h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
-              <li><a href="#about" className="hover:text-indigo-400 transition-colors">About Story</a></li>
-              <li><a href="#portfolio" className="hover:text-indigo-400 transition-colors">Case Studies</a></li>
-              <li><a href="#blog" className="hover:text-indigo-400 transition-colors">Blog & Insights</a></li>
-              <li><a href="#contact" className="hover:text-indigo-400 transition-colors">Contact Strategy</a></li>
+              <li><a href="#hero" className="hover:text-indigo-400 transition-colors">Beranda Utama</a></li>
+              <li><a href="#about" className="hover:text-indigo-400 transition-colors">Profil Toko</a></li>
+              <li><a href="#blog" className="hover:text-indigo-400 transition-colors">Artikel & Tips Listrik</a></li>
+              <li><a href="#contact" className="hover:text-indigo-400 transition-colors">Kontak & Pemesanan</a></li>
             </ul>
           </div>
 

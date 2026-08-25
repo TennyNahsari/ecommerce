@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import HeroSlider from './components/HeroSlider';
 import ServicesSection from './components/ServicesSection';
-import PortfolioSection from './components/PortfolioSection';
 import AboutSection from './components/AboutSection';
 import BlogSection from './components/BlogSection';
 import ContactSection from './components/ContactSection';
@@ -12,10 +11,6 @@ import DynamicPage from './components/DynamicPage';
 import ServiceDetailPage from './components/ServiceDetailPage';
 import ServiceCategoryPage from './components/ServiceCategoryPage';
 import AllServicesPage from './components/AllServicesPage';
-
-import PortfolioDetailPage from './components/PortfolioDetailPage';
-import PortfolioCategoryPage from './components/PortfolioCategoryPage';
-import AllPortfolioPage from './components/AllPortfolioPage';
 
 import BlogDetailPage from './components/BlogDetailPage';
 import AllBlogPage from './components/AllBlogPage';
@@ -89,13 +84,10 @@ export default function App() {
 
   // Determine dynamic routing
   let isAllServices = currentPath === '/services';
-  let isAllPortfolio = currentPath === '/portfolio';
   let isAllBlog = currentPath === '/blog';
 
   let serviceCategorySlug = null;
   let serviceSlug = null;
-  let portfolioCategorySlug = null;
-  let portfolioSlug = null;
   let blogSlug = null;
   let customPageSlug = null;
 
@@ -103,13 +95,9 @@ export default function App() {
     serviceCategorySlug = currentPath.replace(/^\/service\/category\//, '');
   } else if (currentPath.startsWith('/service/')) {
     serviceSlug = currentPath.replace(/^\/service\//, '');
-  } else if (currentPath.startsWith('/portfolio/category/')) {
-    portfolioCategorySlug = currentPath.replace(/^\/portfolio\/category\//, '');
-  } else if (currentPath.startsWith('/portfolio/')) {
-    portfolioSlug = currentPath.replace(/^\/portfolio\//, '');
   } else if (currentPath.startsWith('/blog/')) {
     blogSlug = currentPath.replace(/^\/blog\//, '');
-  } else if (currentPath !== '/' && !isAllServices && !isAllPortfolio && !isAllBlog && !currentPath.startsWith('/api') && !currentPath.startsWith('/admin')) {
+  } else if (currentPath !== '/' && !isAllServices && !isAllBlog && !currentPath.startsWith('/api') && !currentPath.startsWith('/admin')) {
     customPageSlug = currentPath.replace(/^\//, '');
   }
 
@@ -124,18 +112,12 @@ export default function App() {
           <main className="w-full flex flex-col items-center justify-center">
             {isAllServices ? (
               <AllServicesPage onBack={navigateToHome} />
-            ) : isAllPortfolio ? (
-              <AllPortfolioPage onBack={navigateToHome} />
             ) : isAllBlog ? (
               <AllBlogPage onBack={navigateToHome} />
             ) : serviceCategorySlug ? (
               <ServiceCategoryPage categorySlug={serviceCategorySlug} onBack={navigateToHome} />
             ) : serviceSlug ? (
               <ServiceDetailPage slug={serviceSlug} onBack={navigateToHome} />
-            ) : portfolioCategorySlug ? (
-              <PortfolioCategoryPage categorySlug={portfolioCategorySlug} onBack={navigateToHome} />
-            ) : portfolioSlug ? (
-              <PortfolioDetailPage slug={portfolioSlug} onBack={navigateToHome} />
             ) : blogSlug ? (
               <BlogDetailPage slug={blogSlug} onBack={navigateToHome} />
             ) : customPageSlug ? (
@@ -144,7 +126,6 @@ export default function App() {
               <>
                 <HeroSlider />
                 <ServicesSection />
-                <PortfolioSection />
                 <AboutSection />
                 <BlogSection />
                 <ContactSection />

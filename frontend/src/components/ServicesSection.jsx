@@ -51,12 +51,12 @@ export default function ServicesSection() {
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col items-center justify-center">
-          <div className="badge-glow mb-4 mx-auto">Core Capabilities</div>
+          <div className="badge-glow mb-4 mx-auto">Katalog Peralatan Listrik</div>
           <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center">
-            Engineered for Market <span className="gradient-text-accent">Dominance</span>
+            Pilihan Produk Listrik <span className="gradient-text-accent">Terbaik & SNI</span>
           </h2>
           <p className="text-slate-400 text-base md:text-lg text-center">
-            End-to-end digital solutions designed to transform complex brand strategies into high-converting revenue engines.
+            Menyediakan kabel tembaga murni, stop kontak tahan panas, sakelar modern, lampu LED hemat energi, dan pengaman listrik bergaransi resmi.
           </p>
         </div>
 
@@ -132,7 +132,7 @@ export default function ServicesSection() {
             onClick={handleExploreAllServices}
             className="btn-secondary py-3.5 px-8 text-xs font-bold flex items-center gap-2 group"
           >
-            <span>Explore All Agency Services ({services.length})</span>
+            <span>Lihat Seluruh Katalog Produk Listrik ({services.length})</span>
             <ArrowRight className="w-4 h-4 text-indigo-400 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

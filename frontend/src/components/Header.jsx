@@ -6,12 +6,11 @@ export default function Header({ onOpenAdmin }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [navLinks, setNavLinks] = useState([
-    { id: 1, label: 'Home', url: '#hero' },
-    { id: 2, label: 'About Us', url: '#about' },
-    { id: 3, label: 'Services', url: '#services' },
-    { id: 4, label: 'Portfolio', url: '#portfolio' },
-    { id: 5, label: 'Insights', url: '#blog' },
-    { id: 6, label: 'Contact', url: '#contact' },
+    { id: 1, label: 'Beranda', url: '#hero' },
+    { id: 2, label: 'Katalog Produk', url: '#services' },
+    { id: 3, label: 'Tentang Kami', url: '#about' },
+    { id: 4, label: 'Artikel & Tips', url: '#blog' },
+    { id: 5, label: 'Kontak', url: '#contact' },
   ]);
 
   useEffect(() => {
@@ -92,9 +91,9 @@ export default function Header({ onOpenAdmin }) {
             </div>
             <div className="flex flex-col">
               <span className="font-heading text-xl font-extrabold tracking-tight text-white flex items-center gap-1">
-                Digi<span className="text-indigo-400">Agency</span>
+                Toko<span className="text-indigo-400">Listrik Jaya</span>
               </span>
-              <span className="text-[10px] font-semibold text-slate-400 tracking-widest uppercase -mt-1">Aetheric Agency</span>
+              <span className="text-[10px] font-semibold text-slate-400 tracking-widest uppercase -mt-1">Peralatan Listrik UMKM</span>
             </div>
           </a>
         </div>
@@ -122,7 +121,7 @@ export default function Header({ onOpenAdmin }) {
             onClick={(e) => handleLinkClick(e, { url: '#contact' })} 
             className="btn-primary py-2.5 px-5 text-sm whitespace-nowrap"
           >
-            Get Started
+            Pesan Sekarang
           </a>
         </div>
 

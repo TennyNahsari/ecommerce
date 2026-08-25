@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, FileText, Image, Sliders, Menu as MenuIcon, X,
-  MessageSquare, FolderOpen, LogOut, Sparkles, Globe, ChevronRight, Tag, Layers, Briefcase 
+  MessageSquare, FolderOpen, LogOut, Sparkles, Globe, ChevronRight, Tag, Layers
 } from 'lucide-react';
 import Dashboard from './Dashboard';
 import PageBuilder from './PageBuilder';
@@ -12,7 +12,6 @@ import MediaLibrary from './MediaLibrary';
 import InquiryInbox from './InquiryInbox';
 import CategoryManager from './CategoryManager';
 import ServiceManager from './ServiceManager';
-import PortfolioManager from './PortfolioManager';
 import FooterManager from './FooterManager';
 
 export default function AdminLayout({ user, onLogout, onCloseAdmin }) {
@@ -24,13 +23,12 @@ export default function AdminLayout({ user, onLogout, onCloseAdmin }) {
     { id: 'menus', label: 'Header Navigation', icon: MenuIcon },
     { id: 'sliders', label: 'Hero Sliders', icon: Sliders },
     { id: 'categories', label: 'Category Manager', icon: Tag },
-    { id: 'services', label: 'Service Manager', icon: Layers },
-    { id: 'portfolio', label: 'Portfolio Manager', icon: Briefcase },
-    { id: 'posts', label: 'Blog & Articles', icon: FolderOpen },
+    { id: 'services', label: 'Katalog & Produk', icon: Layers },
+    { id: 'posts', label: 'Blog & Artikel', icon: FolderOpen },
     { id: 'pages', label: 'Page Builder (HTML/CSS)', icon: FileText },
     { id: 'media', label: 'Media Library', icon: Image },
     { id: 'footer', label: 'Footer & Contact Settings', icon: Globe },
-    { id: 'inquiries', label: 'B2B Leads Inbox', icon: MessageSquare },
+    { id: 'inquiries', label: 'Pesanan & Inquiries', icon: MessageSquare },
   ];
 
   const activeItem = menuItems.find(i => i.id === activeTab) || menuItems[0];
@@ -161,7 +159,6 @@ export default function AdminLayout({ user, onLogout, onCloseAdmin }) {
         {activeTab === 'sliders' && <SliderManager />}
         {activeTab === 'categories' && <CategoryManager />}
         {activeTab === 'services' && <ServiceManager />}
-        {activeTab === 'portfolio' && <PortfolioManager />}
         {activeTab === 'posts' && <PostManager />}
         {activeTab === 'pages' && <PageBuilder />}
         {activeTab === 'media' && <MediaLibrary />}

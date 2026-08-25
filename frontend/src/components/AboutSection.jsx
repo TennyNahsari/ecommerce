@@ -1,32 +1,32 @@
 import React from 'react';
-import { Target, Eye, Globe, Compass, Users, Award, Shield } from 'lucide-react';
+import { Target, Eye, Globe, Shield, Award, CheckCircle } from 'lucide-react';
 
 export default function AboutSection() {
   const teamMembers = [
     {
-      name: 'Elena Rostova',
-      role: 'Chief Executive Officer',
-      bio: 'Ex-Silicon Valley design strategist with 15+ years leading digital transformation for global enterprises.',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400'
-    },
-    {
-      name: 'Marcus Vance',
-      role: 'Head of Product Engineering',
-      bio: 'Full-stack cloud architect specializing in React, Node microservices, and ultra-high-throughput systems.',
+      name: 'Hadi Suryanto',
+      role: 'Pendiri & Pemilik UMKM',
+      bio: 'Pengalaman 15+ tahun dalam penyediaan komponen & peralatan listrik terpercaya untuk kebutuhan perumahan dan proyek.',
       avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400'
     },
     {
-      name: 'Aria Chen',
-      role: 'VP of Digital Growth & SEO',
-      bio: 'Growth hacker who has generated over $120M+ in organic and performance search revenues.',
+      name: 'Rina Wijaya',
+      role: 'Kepala Layanan Pelanggan & Pemesanan',
+      bio: 'Siap membantu konsultasi spesifikasi peralatan listrik, penawaran harga grosir, dan respon cepat pemesanan.',
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400'
+    },
+    {
+      name: 'Budi Santoso',
+      role: 'Teknisi & Penanggung Jawab Kualitas',
+      bio: 'Memastikan setiap unit kabel, sakelar, stop kontak, dan MCB yang dikirim telah lulus pengujian standar mutu SNI.',
       avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=400'
     }
   ];
 
   const coreValues = [
-    { icon: Target, title: 'ROI Without Compromise', desc: 'Every line of code and pixel designed must directly tie into business growth goals.' },
-    { icon: Globe, title: 'Innovation Without Borders', desc: 'Global talent pool collaborating across time zones to deliver non-stop innovation.' },
-    { icon: Shield, title: 'Enterprise-Grade Security', desc: 'Zero-trust architecture, robust encryption, and compliant CPanel deployment standards.' }
+    { icon: Shield, title: 'Produk 100% Original & SNI', desc: 'Seluruh kabel, sakelar, stop kontak, dan komponen listrik terjamin standar keamanan SNI.' },
+    { icon: Award, title: 'Harga Grosir & Eceran Berkualitas', desc: 'Memberikan penawaran harga terbaik yang terjangkau untuk kebutuhan rumah tangga maupun proyek UMKM.' },
+    { icon: CheckCircle, title: 'Garansi & Pengiriman Cepat', desc: 'Jaminan garansi toko resmi serta pengiriman barang aman, tepat waktu, dan terkemas rapi.' }
   ];
 
   return (
@@ -36,25 +36,25 @@ export default function AboutSection() {
         {/* Story Intro */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-12 md:mb-16 w-full">
           <div>
-            <div className="badge-glow mb-4">About DigiAgency</div>
+            <div className="badge-glow mb-4">Tentang Toko Listrik Jaya UMKM</div>
             <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6">
-              Engineering Digital <span className="gradient-text-accent">Excellence</span> Since 2018
+              Mitra Peralatan Listrik <span className="gradient-text-accent">Terpercaya</span> & Berkualitas
             </h2>
             <p className="text-slate-300 text-base md:text-lg mb-6 leading-relaxed">
-              DigiAgency was founded on a singular premise: traditional agencies charge premium fees for slow iteration cycles. We pioneered the <strong className="text-white">Aetheric Agency Design System</strong>—a high-speed, data-driven framework combining world-class UI/UX with modern React & Express cloud technology.
+              Toko Listrik Jaya UMKM berdiri sebagai pusat grosir dan eceran peralatan listrik berkualitas tinggi. Kami menyediakan solusi lengkap mulai dari kabel tembaga murni, stop kontak tahan panas, sakelar modern, lampu LED hemat energi, hingga pengaman listrik MCB berstandar SNI.
             </p>
             <p className="text-slate-400 text-sm md:text-base leading-relaxed mb-8">
-              We partner directly with CEOs, Founders, and Marketing Directors to build digital assets that outshine competitors and establish market authority.
+              Kami berkomitmen melayani kebutuhan masyarakat, instalatur listrik, kontraktor bangunan, serta para pelaku usaha UMKM dengan produk aman, awet, dan harga bersahabat.
             </p>
 
             <div className="grid grid-cols-2 gap-6 pt-4 border-t border-white/10">
               <div>
                 <span className="text-2xl md:text-3xl font-extrabold text-indigo-400">100%</span>
-                <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">In-House Engineering</span>
+                <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">Berstandar SNI</span>
               </div>
               <div>
-                <span className="text-2xl md:text-3xl font-extrabold text-purple-400">24/7</span>
-                <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">Global SLA Monitoring</span>
+                <span className="text-2xl md:text-3xl font-extrabold text-purple-400">5.000+</span>
+                <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">Pelanggan Puas</span>
               </div>
             </div>
           </div>
@@ -62,25 +62,25 @@ export default function AboutSection() {
           <div className="relative w-full">
             <div className="glass-panel p-2 rounded-3xl border border-indigo-500/20 shadow-2xl relative overflow-hidden w-full">
               <img 
-                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1000" 
-                alt="DigiAgency Team Collaboration" 
+                src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1000" 
+                alt="Peralatan Listrik UMKM" 
                 className="w-full h-[420px] object-cover rounded-2xl"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
               
               <div className="absolute bottom-6 left-6 right-6 glass-card p-4 rounded-xl border border-white/10">
-                <p className="text-xs font-bold text-white uppercase tracking-wider mb-1">Our Mission</p>
-                <p className="text-xs text-slate-300">To empower ambitious B2B enterprises with visually captivating, high-performance web products that dominate search engines and maximize client acquisition.</p>
+                <p className="text-xs font-bold text-white uppercase tracking-wider mb-1">Misi Kami</p>
+                <p className="text-xs text-slate-300">Menyediakan peralatan listrik berkualitas, aman, dan hemat energi secara merata untuk mendukung instalasi rumah tangga dan kemajuan UMKM di Indonesia.</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Core Values / Principles That Drive Us (Explicit 70px margin & 50px padding with !important) */}
+        {/* Core Values */}
         <div className="about-core-values-gap border-y border-white/10 w-full flex flex-col items-center">
           <div className="text-center max-w-xl mx-auto mb-14 flex flex-col items-center">
-            <div className="badge-glow mb-4 mx-auto">Core Values</div>
-            <h3 className="text-2xl md:text-4xl font-extrabold text-white text-center">Principles That Drive Us</h3>
+            <div className="badge-glow mb-4 mx-auto">Keunggulan Kami</div>
+            <h3 className="text-2xl md:text-4xl font-extrabold text-white text-center">Komitmen Kualitas UMKM</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
@@ -96,11 +96,11 @@ export default function AboutSection() {
           </div>
         </div>
 
-        {/* Leadership Profiles / Meet the Architects (Explicit 70px top margin with !important) */}
+        {/* Tim Pengelola */}
         <div className="about-leadership-gap w-full flex flex-col items-center">
           <div className="text-center max-w-xl mx-auto mb-14 flex flex-col items-center">
-            <div className="badge-glow mb-4 mx-auto">Leadership</div>
-            <h3 className="text-2xl md:text-4xl font-extrabold text-white text-center">Meet the Architects</h3>
+            <div className="badge-glow mb-4 mx-auto">Pengelola Toko</div>
+            <h3 className="text-2xl md:text-4xl font-extrabold text-white text-center">Tim Profesional Kami</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">

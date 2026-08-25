@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle2, MessageSquare, Building2, DollarSign } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2, MessageSquare } from 'lucide-react';
 import { apiService } from '../services/api';
 
 export default function ContactSection() {
@@ -7,8 +7,8 @@ export default function ContactSection() {
     name: '',
     email: '',
     company: '',
-    budget: '$10,000 - $25,000',
-    service_interest: 'Web Development',
+    budget: 'Eceran (Rumah Tangga)',
+    service_interest: 'Kabel & Instalasi Listrik',
     message: ''
   });
 
@@ -24,10 +24,10 @@ export default function ContactSection() {
     setLoading(false);
 
     if (res.success) {
-      setResponseMsg({ type: 'success', text: res.message });
-      setFormData({ name: '', email: '', company: '', budget: '$10,000 - $25,000', service_interest: 'Web Development', message: '' });
+      setResponseMsg({ type: 'success', text: 'Pesan / Permintaan Penawaran Anda berhasil terkirim. Tim kami akan segera menghubungi Anda!' });
+      setFormData({ name: '', email: '', company: '', budget: 'Eceran (Rumah Tangga)', service_interest: 'Kabel & Instalasi Listrik', message: '' });
     } else {
-      setResponseMsg({ type: 'error', text: res.message || 'Error submitting inquiry.' });
+      setResponseMsg({ type: 'error', text: res.message || 'Terjadi kesalahan saat mengirim pesanan.' });
     }
   };
 
@@ -40,12 +40,12 @@ export default function ContactSection() {
           {/* Left Info Column */}
           <div className="lg:col-span-5 flex flex-col gap-8">
             <div>
-              <div className="badge-glow mb-4">Start A Project</div>
+              <div className="badge-glow mb-4">Pemesanan & Konsultasi</div>
               <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-4">
-                Let's Scale Your <span className="gradient-text-accent">Brand</span>
+                Hubungi Toko <span className="gradient-text-accent">Listrik Jaya</span>
               </h2>
               <p className="text-slate-300 text-base leading-relaxed">
-                Ready to transform your digital presence? Book a strategy consultation with our senior agency principals today.
+                Siap melayani kebutuhan grosir, eceran, maupun penawaran harga khusus untuk proyek listrik rumah dan usaha Anda.
               </p>
             </div>
 
@@ -56,8 +56,8 @@ export default function ContactSection() {
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white mb-1">Global Headquarters</h4>
-                  <p className="text-xs text-slate-300">Silicon Tower Level 24, Tech District, US / Singapore</p>
+                  <h4 className="text-sm font-bold text-white mb-1">Alamat Toko & Gudang</h4>
+                  <p className="text-xs text-slate-300">Jl. Listrik Raya No. 45, Kompleks Niaga UMKM, Jakarta Pusat, DKI Jakarta</p>
                 </div>
               </div>
 
@@ -66,8 +66,8 @@ export default function ContactSection() {
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white mb-1">Direct Strategy Email</h4>
-                  <p className="text-xs text-slate-300">hello@digiagency.com | partner@digiagency.com</p>
+                  <h4 className="text-sm font-bold text-white mb-1">Email Penawaran & Pemesanan</h4>
+                  <p className="text-xs text-slate-300">sales@tokolistrikjaya.com | info@tokolistrikjaya.com</p>
                 </div>
               </div>
 
@@ -76,8 +76,8 @@ export default function ContactSection() {
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white mb-1">B2B Priority Line</h4>
-                  <p className="text-xs text-slate-300">+1 (800) 928-3444 (Mon-Fri 09:00 - 18:00 EST)</p>
+                  <h4 className="text-sm font-bold text-white mb-1">WhatsApp & Telepon Fast Response</h4>
+                  <p className="text-xs text-slate-300">+62 812-3456-7890 (Senin - Sabtu: 08.00 - 17.00 WIB)</p>
                 </div>
               </div>
             </div>
@@ -87,7 +87,7 @@ export default function ContactSection() {
           <div className="lg:col-span-7 glass-panel p-8 md:p-10 rounded-3xl border border-indigo-500/20 shadow-2xl relative w-full">
             <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
               <MessageSquare className="w-6 h-6 text-indigo-400" />
-              <span>Project Inquiry Form</span>
+              <span>Formulir Pesanan & Tanya Harga</span>
             </h3>
 
             {responseMsg && (
@@ -102,11 +102,11 @@ export default function ContactSection() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Your Name *</label>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Nama Lengkap *</label>
                   <input 
                     type="text" 
                     required
-                    placeholder="Mark Vance"
+                    placeholder="Budi Prasetyo"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="glass-input w-full"
@@ -114,11 +114,11 @@ export default function ContactSection() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Corporate Email *</label>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Alamat Email / No. WA *</label>
                   <input 
                     type="email" 
                     required
-                    placeholder="mark@company.com"
+                    placeholder="budi@gmail.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="glass-input w-full"
@@ -128,10 +128,10 @@ export default function ContactSection() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Company / SME</label>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Nama Usaha / Kota</label>
                   <input 
                     type="text" 
-                    placeholder="TechScale Corp"
+                    placeholder="Toko Listrik Sejahtera / Jakarta"
                     value={formData.company}
                     onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                     className="glass-input w-full"
@@ -139,24 +139,24 @@ export default function ContactSection() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Service Interest</label>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Kategori Produk Diminati</label>
                   <select 
                     value={formData.service_interest}
                     onChange={(e) => setFormData({ ...formData, service_interest: e.target.value })}
                     className="glass-input w-full bg-slate-900 text-slate-200"
                   >
-                    <option value="UI/UX Design">UI/UX Design & Prototyping</option>
-                    <option value="Web Development">Full-Stack Web Development</option>
-                    <option value="Digital Marketing">Digital Marketing & Performance SEO</option>
-                    <option value="Brand Strategy">Brand Strategy & Visual Identity</option>
+                    <option value="Kabel & Instalasi Listrik">Kabel & Instalasi Listrik</option>
+                    <option value="Stop Kontak, Sakelar & Steker">Stop Kontak, Sakelar & Steker</option>
+                    <option value="Lampu & Penghemat Energi">Lampu & Penghemat Energi</option>
+                    <option value="Komponen & Pengaman Listrik">Komponen & Pengaman Listrik</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Target Budget Range</label>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Jenis Pembelian</label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {['<$10,000', '$10,000 - $25,000', '$25,000 - $50,000', '$50,000+'].map((range) => (
+                  {['Eceran (Rumah Tangga)', 'Grosir / Reseller', 'Instalasi Gedung/Proyek', 'Lainnya'].map((range) => (
                     <button
                       type="button"
                       key={range}
@@ -174,11 +174,11 @@ export default function ContactSection() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Project Vision & Goals *</label>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Rincian Barang & Pesanan *</label>
                 <textarea 
                   rows="4"
                   required
-                  placeholder="Describe your primary business objectives, timeline, and key requirements..."
+                  placeholder="Tuliskan daftar barang yang ingin dibeli, spesifikasi, serta jumlah/roll..."
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   className="glass-input w-full resize-none"
@@ -190,7 +190,7 @@ export default function ContactSection() {
                 disabled={loading}
                 className="w-full btn-primary justify-center py-4 text-sm font-bold"
               >
-                {loading ? 'Transmitting Request...' : 'Submit Consultation Request'}
+                {loading ? 'Mengirim Pesanan...' : 'Kirim Pesanan / Minta Penawaran'}
                 <Send className="w-4 h-4 ml-2" />
               </button>
             </form>

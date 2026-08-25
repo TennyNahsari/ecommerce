@@ -7,7 +7,6 @@ import { apiService } from '../services/api';
 
 export default function Dashboard({ onNavigate }) {
   const [stats, setStats] = useState({
-    projectsCount: 0,
     servicesCount: 0,
     categoriesCount: 0,
     postsCount: 0,
@@ -19,10 +18,9 @@ export default function Dashboard({ onNavigate }) {
   useEffect(() => {
     async function loadStats() {
       try {
-        const [projects, services, pCategories, posts, media, inquiries, pages] = await Promise.all([
-          apiService.getProjects(),
+        const [services, pCategories, posts, media, inquiries, pages] = await Promise.all([
           apiService.getServices(),
-          apiService.getPortfolioCategories(),
+          apiService.getServiceCategories(),
           apiService.getPosts(),
           apiService.getMedia(),
           apiService.getInquiries(),
@@ -30,7 +28,6 @@ export default function Dashboard({ onNavigate }) {
         ]);
 
         setStats({
-          projectsCount: projects.length,
           servicesCount: services.length,
           categoriesCount: pCategories.length,
           postsCount: posts.length,
@@ -47,39 +44,25 @@ export default function Dashboard({ onNavigate }) {
     <div className="space-y-8">
       {/* Title */}
       <div>
-        <h1 className="text-3xl font-extrabold text-white">System Dashboard</h1>
-        <p className="text-xs text-slate-400 mt-1">Overview of Portfolio, Services, Categories, CMS Content & B2B Leads</p>
+        <h1 className="text-3xl font-extrabold text-white">Dashboard UMKM Listrik</h1>
+        <p className="text-xs text-slate-400 mt-1">Ringkasan Katalog Peralatan Listrik, Kategori, Artikel & Pesanan Pelanggan</p>
       </div>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5">
         
-        <div 
-          onClick={() => onNavigate('portfolio')}
-          className="glass-panel p-5 rounded-2xl border border-indigo-500/30 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-all"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Portfolio</span>
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-              <Briefcase className="w-5 h-5" />
-            </div>
-          </div>
-          <span className="text-2xl font-extrabold text-white">{stats.projectsCount}</span>
-          <span className="text-[10px] text-indigo-400 font-semibold mt-1">Case Studies</span>
-        </div>
-
         <div 
           onClick={() => onNavigate('services')}
           className="glass-panel p-5 rounded-2xl border border-purple-500/30 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-all"
         >
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Services</span>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Produk Listrik</span>
             <div className="w-9 h-9 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400">
               <Layers className="w-5 h-5" />
             </div>
           </div>
           <span className="text-2xl font-extrabold text-white">{stats.servicesCount}</span>
-          <span className="text-[10px] text-purple-400 font-semibold mt-1">Capabilities</span>
+          <span className="text-[10px] text-purple-400 font-semibold mt-1">Item Katalog</span>
         </div>
 
         <div 
@@ -87,13 +70,13 @@ export default function Dashboard({ onNavigate }) {
           className="glass-panel p-5 rounded-2xl border border-emerald-500/30 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-all"
         >
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Categories</span>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Kategori</span>
             <div className="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
               <Tag className="w-5 h-5" />
             </div>
           </div>
           <span className="text-2xl font-extrabold text-white">{stats.categoriesCount}</span>
-          <span className="text-[10px] text-emerald-400 font-semibold mt-1">Managed Taxonomies</span>
+          <span className="text-[10px] text-emerald-400 font-semibold mt-1">Kategori Produk</span>
         </div>
 
         <div 
@@ -101,13 +84,13 @@ export default function Dashboard({ onNavigate }) {
           className="glass-panel p-5 rounded-2xl border border-rose-500/30 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-all"
         >
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">B2B Leads</span>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pesanan & Inquiries</span>
             <div className="w-9 h-9 rounded-xl bg-rose-500/20 flex items-center justify-center text-rose-400">
               <MessageSquare className="w-5 h-5" />
             </div>
           </div>
           <span className="text-2xl font-extrabold text-white">{stats.inquiriesCount}</span>
-          <span className="text-[10px] text-rose-400 font-semibold mt-1">Client Inquiries</span>
+          <span className="text-[10px] text-rose-400 font-semibold mt-1">Pesan / Pesanan</span>
         </div>
 
         <div 
@@ -115,13 +98,13 @@ export default function Dashboard({ onNavigate }) {
           className="glass-panel p-5 rounded-2xl border border-amber-500/30 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-all"
         >
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Articles</span>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Artikel & Tips</span>
             <div className="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400">
               <FolderOpen className="w-5 h-5" />
             </div>
           </div>
           <span className="text-2xl font-extrabold text-white">{stats.postsCount}</span>
-          <span className="text-[10px] text-amber-400 font-semibold mt-1">Blog Posts</span>
+          <span className="text-[10px] text-amber-400 font-semibold mt-1">Artikel Berita</span>
         </div>
 
         <div 
@@ -135,28 +118,14 @@ export default function Dashboard({ onNavigate }) {
             </div>
           </div>
           <span className="text-2xl font-extrabold text-white">{stats.mediaCount}</span>
-          <span className="text-[10px] text-sky-400 font-semibold mt-1">Uploaded Assets</span>
+          <span className="text-[10px] text-sky-400 font-semibold mt-1">Asset Gambar</span>
         </div>
 
       </div>
 
       {/* Quick Action Tiles */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        <div 
-          onClick={() => onNavigate('portfolio')}
-          className="glass-card p-6 rounded-2xl cursor-pointer group border border-white/5 hover:border-indigo-500/50"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-              <Briefcase className="w-5 h-5" />
-            </div>
-            <Plus className="w-5 h-5 text-slate-500 group-hover:text-white transition-colors" />
-          </div>
-          <h3 className="text-lg font-bold text-white mb-1">Portfolio & Case Studies</h3>
-          <p className="text-xs text-slate-400">Manage client deliverables, ROI metrics, and dedicated case study pages.</p>
-        </div>
-
         <div 
           onClick={() => onNavigate('services')}
           className="glass-card p-6 rounded-2xl cursor-pointer group border border-white/5 hover:border-purple-500/50"
@@ -167,8 +136,8 @@ export default function Dashboard({ onNavigate }) {
             </div>
             <Plus className="w-5 h-5 text-slate-500 group-hover:text-white transition-colors" />
           </div>
-          <h3 className="text-lg font-bold text-white mb-1">Service Capabilities</h3>
-          <p className="text-xs text-slate-400">Manage core services, assigned categories, and detailed HTML narratives.</p>
+          <h3 className="text-lg font-bold text-white mb-1">Kelola Katalog Produk</h3>
+          <p className="text-xs text-slate-400">Kelola produk peralatan listrik, deskripsi, fitur spesifikasi, dan foto produk.</p>
         </div>
 
         <div 
@@ -181,8 +150,8 @@ export default function Dashboard({ onNavigate }) {
             </div>
             <Plus className="w-5 h-5 text-slate-500 group-hover:text-white transition-colors" />
           </div>
-          <h3 className="text-lg font-bold text-white mb-1">Category Manager</h3>
-          <p className="text-xs text-slate-400">Create & manage categories for Service offerings and Portfolio projects.</p>
+          <h3 className="text-lg font-bold text-white mb-1">Kelola Kategori Produk</h3>
+          <p className="text-xs text-slate-400">Kelola kategori peralatan listrik (Kabel, Sakelar, Lampu LED, Komponen Listrik).</p>
         </div>
 
       </div>

@@ -5,9 +5,9 @@ require('dotenv').config();
 const poolConfig = {
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 5432,
-  user: process.env.DB_USER || 'digiagency',
-  password: process.env.DB_PASSWORD || 'digiagency',
-  database: process.env.DB_NAME || 'digiagency',
+  user: process.env.DB_USER || 'ecommerce',
+  password: process.env.DB_PASSWORD || 'ecommerce',
+  database: process.env.DB_NAME || 'ecommerce',
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
