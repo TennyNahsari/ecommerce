@@ -13,6 +13,7 @@ import InquiryInbox from './InquiryInbox';
 import CategoryManager from './CategoryManager';
 import ServiceManager from './ServiceManager';
 import OrderManager from './OrderManager';
+import FooterManager from './FooterManager';
 
 export default function AdminLayout({ user, onLogout, onCloseAdmin }) {
   const [activeTab, setActiveTab] = useState('dashboard');

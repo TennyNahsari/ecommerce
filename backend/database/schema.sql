@@ -17,10 +17,12 @@ INSERT INTO site_settings (key, value) VALUES (
         "contact_email": "sales@tokolistrikjaya.com",
         "contact_phone": "+62 812-3456-7890",
         "copyright_text": "© 2026 Toko Listrik Jaya UMKM. Seluruh Hak Cipta Dilindungi. Powered by Express & PostgreSQL.",
-        "social_linkedin": "https://linkedin.com",
+        "social_instagram": "https://instagram.com",
         "social_twitter": "https://twitter.com",
-        "social_github": "https://github.com",
-        "social_dribbble": "https://dribbble.com"
+        "social_threads": "https://threads.net",
+        "social_facebook": "https://facebook.com",
+        "social_linkedin": "https://linkedin.com",
+        "social_youtube": "https://youtube.com"
     }'::jsonb
 ) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 

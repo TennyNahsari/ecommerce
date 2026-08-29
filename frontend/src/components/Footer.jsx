@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Github, Twitter, Linkedin, Dribbble, ArrowUp, Mail, Phone, MapPin } from 'lucide-react';
+import { Sparkles, Instagram, Twitter, Facebook, Linkedin, Youtube, AtSign, ArrowUp, Mail, Phone, MapPin } from 'lucide-react';
 import { apiService } from '../services/api';
 
 export default function Footer() {
@@ -10,17 +10,19 @@ export default function Footer() {
     contact_email: 'sales@tokolistrikjaya.com',
     contact_phone: '+62 812-3456-7890',
     copyright_text: '© 2026 Toko Listrik Jaya UMKM. Seluruh Hak Cipta Dilindungi.',
-    social_linkedin: 'https://linkedin.com',
+    social_instagram: 'https://instagram.com',
     social_twitter: 'https://twitter.com',
-    social_github: 'https://github.com',
-    social_dribbble: 'https://dribbble.com'
+    social_threads: 'https://threads.net',
+    social_facebook: 'https://facebook.com',
+    social_linkedin: 'https://linkedin.com',
+    social_youtube: 'https://youtube.com'
   });
 
   useEffect(() => {
     async function loadFooterSettings() {
       const data = await apiService.getFooterSettings();
-      if (data) {
-        setFooterSettings(data);
+      if (data && typeof data === 'object') {
+        setFooterSettings(prev => ({ ...prev, ...data }));
       }
     }
     loadFooterSettings();
@@ -74,25 +76,35 @@ export default function Footer() {
             </div>
 
             {/* Social Media Links */}
-            <div className="flex items-center gap-3 pt-3">
-              {footerSettings.social_linkedin && (
-                <a href={footerSettings.social_linkedin} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:border-indigo-500 transition-colors">
-                  <Linkedin className="w-4 h-4" />
+            <div className="flex items-center flex-wrap gap-2.5 pt-3">
+              {footerSettings.social_instagram && (
+                <a href={footerSettings.social_instagram} target="_blank" rel="noreferrer" title="Instagram" className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-pink-400 hover:border-pink-500/50 hover:bg-pink-500/10 transition-colors">
+                  <Instagram className="w-4 h-4" />
                 </a>
               )}
               {footerSettings.social_twitter && (
-                <a href={footerSettings.social_twitter} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:border-indigo-500 transition-colors">
+                <a href={footerSettings.social_twitter} target="_blank" rel="noreferrer" title="Twitter / X" className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-sky-400 hover:border-sky-500/50 hover:bg-sky-500/10 transition-colors">
                   <Twitter className="w-4 h-4" />
                 </a>
               )}
-              {footerSettings.social_github && (
-                <a href={footerSettings.social_github} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:border-indigo-500 transition-colors">
-                  <Github className="w-4 h-4" />
+              {footerSettings.social_threads && (
+                <a href={footerSettings.social_threads} target="_blank" rel="noreferrer" title="Threads" className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-purple-300 hover:border-purple-500/50 hover:bg-purple-500/10 transition-colors">
+                  <AtSign className="w-4 h-4" />
                 </a>
               )}
-              {footerSettings.social_dribbble && (
-                <a href={footerSettings.social_dribbble} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:border-indigo-500 transition-colors">
-                  <Dribbble className="w-4 h-4" />
+              {footerSettings.social_facebook && (
+                <a href={footerSettings.social_facebook} target="_blank" rel="noreferrer" title="Facebook" className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-blue-400 hover:border-blue-500/50 hover:bg-blue-500/10 transition-colors">
+                  <Facebook className="w-4 h-4" />
+                </a>
+              )}
+              {footerSettings.social_linkedin && (
+                <a href={footerSettings.social_linkedin} target="_blank" rel="noreferrer" title="LinkedIn" className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-indigo-400 hover:border-indigo-500/50 hover:bg-indigo-500/10 transition-colors">
+                  <Linkedin className="w-4 h-4" />
+                </a>
+              )}
+              {footerSettings.social_youtube && (
+                <a href={footerSettings.social_youtube} target="_blank" rel="noreferrer" title="YouTube" className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-red-400 hover:border-red-500/50 hover:bg-red-500/10 transition-colors">
+                  <Youtube className="w-4 h-4" />
                 </a>
               )}
             </div>

@@ -4,16 +4,18 @@ const db = require('../config/db');
 const { verifyToken } = require('../middleware/auth');
 
 let memoryFooter = {
-  company_name: 'DigiAgency Aetheric',
-  company_bio: 'Enterprise digital agency engineering high-speed React web products, UI/UX design systems, and data-driven B2B growth marketing.',
-  office_address: 'Financial Tower Level 18, Pacific Boulevard, San Francisco, CA',
-  contact_email: 'hello@digiagency.com',
-  contact_phone: '+1 (555) 234-5678',
-  copyright_text: '© 2026 DigiAgency Aetheric. All rights reserved. Powered by React, Express & PostgreSQL.',
-  social_linkedin: 'https://linkedin.com',
+  company_name: 'Toko Listrik Jaya UMKM',
+  company_bio: 'Pusat grosir & eceran peralatan listrik terpercaya untuk kebutuhan rumah tangga, instalasi gedung, toko, dan UMKM. Produk 100% berkualitas & berstandar SNI.',
+  office_address: 'Jl. Listrik Raya No. 45, Kompleks Niaga UMKM, Jakarta Pusat, DKI Jakarta',
+  contact_email: 'sales@tokolistrikjaya.com',
+  contact_phone: '+62 812-3456-7890',
+  copyright_text: '© 2026 Toko Listrik Jaya UMKM. Seluruh Hak Cipta Dilindungi.',
+  social_instagram: 'https://instagram.com',
   social_twitter: 'https://twitter.com',
-  social_github: 'https://github.com',
-  social_dribbble: 'https://dribbble.com'
+  social_threads: 'https://threads.net',
+  social_facebook: 'https://facebook.com',
+  social_linkedin: 'https://linkedin.com',
+  social_youtube: 'https://youtube.com'
 };
 
 // GET /api/settings/footer (Public)
