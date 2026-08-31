@@ -1,8 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, CheckCircle2, AlertCircle, Eye, RefreshCw, Building2, Save, Plus, Trash2, X, ExternalLink, Search, QrCode, Upload } from 'lucide-react';
+import { ShoppingBag, CheckCircle2, AlertCircle, Eye, RefreshCw, Building2, Save, Plus, Trash2, X, ExternalLink, Search, QrCode, Upload, Clock } from 'lucide-react';
 import { apiService } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
+
+const formatDeadlineText = (deadline, createdAt, lang = 'id') => {
+  let dateObj = null;
+  if (deadline) {
+    dateObj = new Date(deadline);
+  } else if (createdAt) {
+    dateObj = new Date(new Date(createdAt).getTime() + 60 * 60 * 1000);
+  }
+  if (!dateObj || isNaN(dateObj.getTime())) return '-';
+
+  if (lang === 'en') {
+    return dateObj.toLocaleString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
+  return dateObj.toLocaleString('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }) + ' WIB';
+};
 
 export default function OrderManager() {
+  const { lang, setLang, t } = useLanguage();
   const [activeSubTab, setActiveSubTab] = useState('orders'); // 'orders' | 'bank_accounts'
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -257,24 +290,44 @@ export default function OrderManager() {
               )}
             </div>
 
-            {searchQuery && (
-              <span className="text-xs font-semibold text-indigo-300">
-                Ditemukan {filteredOrders.length} pesanan cocok
-              </span>
-            )}
+            <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap justify-end">
+              {searchQuery && (
+                <span className="text-xs font-semibold text-indigo-300">
+                  {lang === 'en' ? `Found ${filteredOrders.length} matching orders` : `Ditemukan ${filteredOrders.length} pesanan cocok`}
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={async () => {
+                  setMsg('');
+                  setErrorMsg('');
+                  await loadOrders();
+                  setMsg(lang === 'en' 
+                    ? 'Order data refreshed. Expired orders automatically cancelled & proof of payment loaded.' 
+                    : 'Data pesanan diperbarui. Pesanan kedaluwarsa otomatis dibatalkan & bukti transfer yang ada akan tampil.');
+                }}
+                disabled={loadingOrders}
+                className="btn-primary py-2.5 sm:py-3 px-4 sm:px-5 text-xs font-bold flex items-center gap-2 shadow-lg shrink-0 cursor-pointer"
+                title={lang === 'en' ? 'Refresh orders & check payment deadlines' : 'Refresh pesanan & cek status bayar paling lambat'}
+              >
+                <RefreshCw className={`w-4 h-4 ${loadingOrders ? 'animate-spin' : ''}`} />
+                <span>{loadingOrders ? (lang === 'en' ? 'Refreshing...' : 'Memperbarui...') : (lang === 'en' ? 'Refresh Orders' : 'Refresh Pesanan')}</span>
+              </button>
+            </div>
           </div>
           
           {/* Status Filter Badges */}
           <div className="flex items-center gap-3 overflow-x-auto pb-3 cms-orders-filter-row">
             {[
-              { label: 'Semua Status', value: 'ALL' },
-              { label: 'Menunggu Pembayaran', value: 'PENDING_PAYMENT' },
-              { label: 'Bukti Transfer Diunggah', value: 'PAYMENT_UNVERIFIED' },
-              { label: 'Pembayaran Lunas', value: 'PAID' },
-              { label: 'Diproses', value: 'PROCESSING' },
-              { label: 'Dalam Pengiriman', value: 'SHIPPED' },
-              { label: 'Selesai', value: 'COMPLETED' },
-              { label: 'Dibatalkan', value: 'CANCELLED' }
+              { label: lang === 'en' ? 'All Status' : 'Semua Status', value: 'ALL' },
+              { label: lang === 'en' ? 'Pending Payment' : 'Menunggu Pembayaran', value: 'PENDING_PAYMENT' },
+              { label: lang === 'en' ? 'Proof Uploaded' : 'Bukti Transfer Diunggah', value: 'PAYMENT_UNVERIFIED' },
+              { label: lang === 'en' ? 'Paid' : 'Pembayaran Lunas', value: 'PAID' },
+              { label: lang === 'en' ? 'Processing' : 'Diproses', value: 'PROCESSING' },
+              { label: lang === 'en' ? 'Shipped' : 'Dalam Pengiriman', value: 'SHIPPED' },
+              { label: lang === 'en' ? 'Completed' : 'Selesai', value: 'COMPLETED' },
+              { label: lang === 'en' ? 'Cancelled' : 'Dibatalkan', value: 'CANCELLED' }
             ].map((st) => (
               <button
                 key={st.value}
@@ -298,49 +351,62 @@ export default function OrderManager() {
                   
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 border-b border-white/10 pb-5 cms-order-card-header">
                     <div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5 cms-order-code-title">Kode Pesanan</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5 cms-order-code-title">
+                        {lang === 'en' ? 'Order Code' : 'Kode Pesanan'}
+                      </span>
                       <div className="flex items-baseline gap-3">
                         <span className="text-xl md:text-2xl font-extrabold text-white font-mono cms-order-code-text">{ord.order_code}</span>
                         <span className="text-xs text-slate-400 font-mono cms-order-code-date">
-                          {new Date(ord.created_at || Date.now()).toLocaleString('id-ID')}
+                          {new Date(ord.created_at || Date.now()).toLocaleString(lang === 'en' ? 'en-US' : 'id-ID')}
                         </span>
                       </div>
                     </div>
 
                     {/* Status Select Dropdown & Delete Order Button */}
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-bold text-slate-400 uppercase">Ubah Status:</span>
+                      <span className="text-xs font-bold text-slate-400 uppercase">{lang === 'en' ? 'Status:' : 'Ubah Status:'}</span>
                       <select
                         value={ord.status}
                         onChange={(e) => handleUpdateStatus(ord.id, e.target.value)}
                         className="glass-input text-xs font-bold bg-slate-900 text-white rounded-xl px-4 py-2.5 border border-indigo-500/40 focus:outline-none shadow-md"
                       >
-                        <option value="PENDING_PAYMENT">⏳ PENDING_PAYMENT (Menunggu Bayar)</option>
-                        <option value="PAYMENT_UNVERIFIED">🔍 PAYMENT_UNVERIFIED (Verifikasi Bukti)</option>
-                        <option value="PAID">✅ PAID (Lunas)</option>
-                        <option value="PROCESSING">📦 PROCESSING (Diproses)</option>
-                        <option value="SHIPPED">🚚 SHIPPED (Dikirim)</option>
-                        <option value="COMPLETED">🎉 COMPLETED (Selesai)</option>
-                        <option value="CANCELLED">❌ CANCELLED (Dibatalkan)</option>
+                        <option value="PENDING_PAYMENT">⏳ PENDING_PAYMENT</option>
+                        <option value="PAYMENT_UNVERIFIED">🔍 PAYMENT_UNVERIFIED</option>
+                        <option value="PAID">✅ PAID</option>
+                        <option value="PROCESSING">📦 PROCESSING</option>
+                        <option value="SHIPPED">🚚 SHIPPED</option>
+                        <option value="COMPLETED">🎉 COMPLETED</option>
+                        <option value="CANCELLED">❌ CANCELLED</option>
                       </select>
 
                       <button
                         onClick={() => handleDeleteOrder(ord.id, ord.order_code)}
                         className="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 hover:text-rose-300 transition-colors flex items-center gap-1.5 text-xs font-bold shadow-md"
-                        title="Hapus Pesanan Ini"
+                        title={lang === 'en' ? 'Delete order' : 'Hapus Pesanan Ini'}
                       >
                         <Trash2 className="w-4 h-4" />
-                        <span className="hidden sm:inline">Hapus</span>
+                        <span className="hidden sm:inline">{lang === 'en' ? 'Delete' : 'Hapus'}</span>
                       </button>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-300 cms-order-info-grid">
                     <div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1.5">Data Pembeli</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1.5">
+                        {lang === 'en' ? 'Buyer Details' : 'Data Pembeli'}
+                      </span>
                       <p className="font-bold text-white text-sm mb-1">{ord.customer_name}</p>
                       <p className="font-mono text-indigo-300 font-bold mb-0.5">{ord.customer_phone}</p>
-                      {ord.customer_email && <p className="text-xs text-slate-400">{ord.customer_email}</p>}
+                      {ord.customer_email && <p className="text-xs text-slate-400 mb-1">{ord.customer_email}</p>}
+                      <div className="mt-2.5 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200">
+                        <span className="text-[10px] font-bold uppercase flex items-center gap-1 mb-0.5 text-amber-300">
+                          <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                          <span>{lang === 'en' ? 'Payment Deadline' : 'Bayar Paling Telat'}</span>
+                        </span>
+                        <span className="font-mono text-xs font-bold block break-words">
+                          {formatDeadlineText(ord.payment_deadline, ord.created_at, lang)}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="md:col-span-2">
@@ -464,7 +530,9 @@ export default function OrderManager() {
               {filteredOrders.length > itemsPerPage && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10 text-xs">
                   <span className="text-slate-400 font-medium">
-                    Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredOrders.length)} dari {filteredOrders.length} Pesanan
+                    {lang === 'en' 
+                      ? `Showing ${((currentPage - 1) * itemsPerPage) + 1} - ${Math.min(currentPage * itemsPerPage, filteredOrders.length)} of ${filteredOrders.length} Orders`
+                      : `Menampilkan ${((currentPage - 1) * itemsPerPage) + 1} - ${Math.min(currentPage * itemsPerPage, filteredOrders.length)} dari ${filteredOrders.length} Pesanan`}
                   </span>
 
                   <div className="flex items-center gap-2">
@@ -474,7 +542,7 @@ export default function OrderManager() {
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 disabled:opacity-40 font-bold text-slate-300 transition-colors"
                     >
-                      &larr; Sebelumnya
+                      &larr; {lang === 'en' ? 'Previous' : 'Sebelumnya'}
                     </button>
 
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
@@ -498,7 +566,7 @@ export default function OrderManager() {
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                       className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 disabled:opacity-40 font-bold text-slate-300 transition-colors"
                     >
-                      Selanjutnya &rarr;
+                      {lang === 'en' ? 'Next' : 'Berikutnya'} &rarr;
                     </button>
                   </div>
                 </div>

@@ -1,8 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Check, Copy, Upload, Send, X, AlertCircle, Building2, CheckCircle2, PackageCheck, Sparkles, QrCode } from 'lucide-react';
+import { ShoppingCart, Check, Copy, Upload, Send, X, AlertCircle, Building2, CheckCircle2, PackageCheck, Sparkles, QrCode, Clock } from 'lucide-react';
 import { apiService } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
+
+const formatDeadlineText = (deadline, createdAt, lang = 'id') => {
+  let dateObj = null;
+  if (deadline) {
+    dateObj = new Date(deadline);
+  } else if (createdAt) {
+    dateObj = new Date(new Date(createdAt).getTime() + 60 * 60 * 1000);
+  } else {
+    dateObj = new Date(Date.now() + 60 * 60 * 1000);
+  }
+  if (!dateObj || isNaN(dateObj.getTime())) return '-';
+
+  if (lang === 'en') {
+    return dateObj.toLocaleString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
+  return dateObj.toLocaleString('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }) + ' WIB';
+};
 
 export default function OrderModal({ product, onClose }) {
+  const { lang, setLang, t } = useLanguage();
   const [quantity, setQuantity] = useState(1);
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -289,6 +324,46 @@ export default function OrderModal({ product, onClose }) {
                 >
                   <Copy className="w-5 h-5" />
                 </button>
+              </div>
+            </div>
+
+            {/* Payment Deadline Banner with Multi-Language Switcher */}
+            <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-lg">
+              <div className="flex items-start sm:items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 shrink-0 mt-0.5 sm:mt-0">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider block">
+                    {lang === 'en' ? 'Payment Deadline (Pay At The Latest By):' : 'Batas Waktu Pembayaran (Bayar Paling Telat):'}
+                  </span>
+                  <span className="text-sm sm:text-base font-extrabold text-amber-200 font-mono block mt-0.5 break-words">
+                    {formatDeadlineText(createdOrder.payment_deadline, createdOrder.created_at, lang)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between sm:justify-end gap-2.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-amber-500/20">
+                <div className="flex items-center bg-slate-900/80 rounded-xl p-1 border border-white/10 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setLang('id')}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${lang === 'id' ? 'bg-amber-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    🇮🇩 ID
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLang('en')}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${lang === 'en' ? 'bg-amber-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    🇬🇧 EN
+                  </button>
+                </div>
+
+                <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 whitespace-nowrap">
+                  {lang === 'en' ? 'Max 1 Hour' : 'Maksimal 1 Jam'}
+                </span>
               </div>
             </div>
 

@@ -21,6 +21,7 @@ import OrderModal from './components/OrderModal';
 import OrderTrackingModal from './components/OrderTrackingModal';
 import WhatsAppButton from './components/WhatsAppButton';
 import { apiService } from './services/api';
+import { LanguageProvider } from './context/LanguageContext';
 
 export default function App() {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -116,77 +117,79 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#081425] text-slate-100 font-sans selection:bg-indigo-600 selection:text-white flex flex-col items-center justify-center overflow-x-hidden">
-      
-      {/* Public Web Layout */}
-      {!inAdminPanel && (
-        <>
-          <Header 
-            onOpenAdmin={handleOpenAdmin} 
-            onOpenOrderTracking={() => setShowOrderTracking(true)} 
+    <LanguageProvider>
+      <div className="min-h-screen w-full bg-[#081425] text-slate-100 font-sans selection:bg-indigo-600 selection:text-white flex flex-col items-center justify-center overflow-x-hidden">
+        
+        {/* Public Web Layout */}
+        {!inAdminPanel && (
+          <>
+            <Header 
+              onOpenAdmin={handleOpenAdmin} 
+              onOpenOrderTracking={() => setShowOrderTracking(true)} 
+            />
+            
+            <main className="w-full flex flex-col items-center justify-center">
+              {isAllServices ? (
+                <AllServicesPage onBack={navigateToHome} onOrderProduct={(p) => setOrderProduct(p)} />
+              ) : isAllBlog ? (
+                <AllBlogPage onBack={navigateToHome} />
+              ) : serviceCategorySlug ? (
+                <ServiceCategoryPage categorySlug={serviceCategorySlug} onBack={navigateToHome} onOrderProduct={(p) => setOrderProduct(p)} />
+              ) : serviceSlug ? (
+                <ServiceDetailPage slug={serviceSlug} onBack={navigateToHome} onOrderProduct={(p) => setOrderProduct(p)} />
+              ) : blogSlug ? (
+                <BlogDetailPage slug={blogSlug} onBack={navigateToHome} />
+              ) : customPageSlug ? (
+                <DynamicPage slug={customPageSlug} onBack={navigateToHome} />
+              ) : (
+                <>
+                  <HeroSlider />
+                  <ServicesSection onOrderProduct={(p) => setOrderProduct(p)} />
+                  <AboutSection />
+                  <BlogSection />
+                  <ContactSection />
+                </>
+              )}
+            </main>
+
+            <WhatsAppButton />
+            <Footer />
+          </>
+        )}
+
+        {/* Customer Checkout Order Modal */}
+        {orderProduct && (
+          <OrderModal 
+            product={orderProduct} 
+            onClose={() => setOrderProduct(null)} 
           />
-          
-          <main className="w-full flex flex-col items-center justify-center">
-            {isAllServices ? (
-              <AllServicesPage onBack={navigateToHome} onOrderProduct={(p) => setOrderProduct(p)} />
-            ) : isAllBlog ? (
-              <AllBlogPage onBack={navigateToHome} />
-            ) : serviceCategorySlug ? (
-              <ServiceCategoryPage categorySlug={serviceCategorySlug} onBack={navigateToHome} onOrderProduct={(p) => setOrderProduct(p)} />
-            ) : serviceSlug ? (
-              <ServiceDetailPage slug={serviceSlug} onBack={navigateToHome} onOrderProduct={(p) => setOrderProduct(p)} />
-            ) : blogSlug ? (
-              <BlogDetailPage slug={blogSlug} onBack={navigateToHome} />
-            ) : customPageSlug ? (
-              <DynamicPage slug={customPageSlug} onBack={navigateToHome} />
-            ) : (
-              <>
-                <HeroSlider />
-                <ServicesSection onOrderProduct={(p) => setOrderProduct(p)} />
-                <AboutSection />
-                <BlogSection />
-                <ContactSection />
-              </>
-            )}
-          </main>
+        )}
 
-          <WhatsAppButton />
-          <Footer />
-        </>
-      )}
+        {/* Customer Order Tracking Status Modal */}
+        {showOrderTracking && (
+          <OrderTrackingModal 
+            onClose={() => setShowOrderTracking(false)} 
+          />
+        )}
 
-      {/* Customer Checkout Order Modal */}
-      {orderProduct && (
-        <OrderModal 
-          product={orderProduct} 
-          onClose={() => setOrderProduct(null)} 
-        />
-      )}
+        {/* Admin Login Overlay */}
+        {showAdminLogin && (
+          <AdminLogin 
+            onLoginSuccess={handleLoginSuccess}
+            onClose={() => setShowAdminLogin(false)}
+          />
+        )}
 
-      {/* Customer Order Tracking Status Modal */}
-      {showOrderTracking && (
-        <OrderTrackingModal 
-          onClose={() => setShowOrderTracking(false)} 
-        />
-      )}
+        {/* Admin Panel Main View */}
+        {inAdminPanel && (
+          <AdminLayout 
+            user={adminUser}
+            onLogout={handleLogout}
+            onCloseAdmin={() => setInAdminPanel(false)}
+          />
+        )}
 
-      {/* Admin Login Overlay */}
-      {showAdminLogin && (
-        <AdminLogin 
-          onLoginSuccess={handleLoginSuccess}
-          onClose={() => setShowAdminLogin(false)}
-        />
-      )}
-
-      {/* Admin Panel Main View */}
-      {inAdminPanel && (
-        <AdminLayout 
-          user={adminUser}
-          onLogout={handleLogout}
-          onCloseAdmin={() => setInAdminPanel(false)}
-        />
-      )}
-
-    </div>
+      </div>
+    </LanguageProvider>
   );
 }

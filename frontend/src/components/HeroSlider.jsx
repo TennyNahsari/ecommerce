@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { apiService } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function HeroSlider() {
+  const { lang, t } = useLanguage();
   const [slides, setSlides] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -26,11 +28,11 @@ export default function HeroSlider() {
 
   const defaultSlide = {
     id: 1,
-    title: 'Pusat Peralatan Listrik UMKM Terlengkap',
-    subtitle: 'Solusi kebutuhan kabel, stop kontak, sakelar, lampu LED, dan pengaman listrik berkualitas SNI dengan harga grosir & eceran.',
-    badge_text: 'PROMO SPESIAL UMKM',
+    title: t('hero_title_1'),
+    subtitle: t('hero_sub_1'),
+    badge_text: t('hero_badge_1'),
     image_url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200',
-    cta_text: 'Lihat Katalog Produk',
+    cta_text: t('hero_cta_1'),
     cta_link: '#services'
   };
 
@@ -67,12 +69,12 @@ export default function HeroSlider() {
 
           {/* CTAs */}
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4 mx-auto">
-            <a href={currentSlide.cta_link || '#portfolio'} className="btn-primary">
-              <span>{currentSlide.cta_text || 'Explore Our Work'}</span>
+            <a href={currentSlide.cta_link || '#services'} className="btn-primary">
+              <span>{currentSlide.cta_text || t('hero_cta_1')}</span>
               <ArrowRight className="w-5 h-5" />
             </a>
             <a href="#contact" className="btn-secondary">
-              Book Strategy Session
+              {lang === 'en' ? 'Contact & Wholesale Quote' : 'Konsultasi & Penawaran'}
             </a>
           </div>
 
@@ -80,15 +82,21 @@ export default function HeroSlider() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-16 w-full max-w-3xl mx-auto glass-panel p-6 rounded-2xl border border-white/10 text-center">
             <div className="flex flex-col items-center justify-center">
               <span className="text-3xl md:text-4xl font-extrabold text-indigo-400">99.4%</span>
-              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider mt-1 text-center">Client Satisfaction</span>
+              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider mt-1 text-center">
+                {lang === 'en' ? 'Client Satisfaction' : 'Kepuasan Pelanggan'}
+              </span>
             </div>
             <div className="flex flex-col items-center justify-center">
-              <span className="text-3xl md:text-4xl font-extrabold text-purple-400">3.8x</span>
-              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider mt-1 text-center">Average ROI Growth</span>
+              <span className="text-3xl md:text-4xl font-extrabold text-purple-400">100%</span>
+              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider mt-1 text-center">
+                {lang === 'en' ? 'SNI Certified' : 'Standar Mutu SNI'}
+              </span>
             </div>
             <div className="col-span-2 md:col-span-1 flex flex-col items-center justify-center">
-              <span className="text-3xl md:text-4xl font-extrabold text-sky-400">120+</span>
-              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider mt-1 text-center">Global Deployments</span>
+              <span className="text-3xl md:text-4xl font-extrabold text-sky-400">5.000+</span>
+              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider mt-1 text-center">
+                {lang === 'en' ? 'Orders Shipped' : 'Pesanan Terkirim'}
+              </span>
             </div>
           </div>
 

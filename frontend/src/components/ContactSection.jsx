@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle2, MessageSquare } from 'lucide-react';
 import { apiService } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ContactSection() {
+  const { lang, t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -24,10 +26,15 @@ export default function ContactSection() {
     setLoading(false);
 
     if (res.success) {
-      setResponseMsg({ type: 'success', text: 'Pesan / Permintaan Penawaran Anda berhasil terkirim. Tim kami akan segera menghubungi Anda!' });
+      setResponseMsg({
+        type: 'success',
+        text: lang === 'en' 
+          ? 'Your message / inquiry has been sent successfully. Our team will contact you shortly!' 
+          : 'Pesan / Permintaan Penawaran Anda berhasil terkirim. Tim kami akan segera menghubungi Anda!'
+      });
       setFormData({ name: '', email: '', company: '', budget: 'Eceran (Rumah Tangga)', service_interest: 'Kabel & Instalasi Listrik', message: '' });
     } else {
-      setResponseMsg({ type: 'error', text: res.message || 'Terjadi kesalahan saat mengirim pesanan.' });
+      setResponseMsg({ type: 'error', text: res.message || 'Error sending inquiry.' });
     }
   };
 
@@ -40,12 +47,12 @@ export default function ContactSection() {
           {/* Left Info Column */}
           <div className="lg:col-span-5 flex flex-col justify-between h-full">
             <div className="contact-left-box">
-              <div className="badge-glow contact-badge">Pemesanan &amp; Konsultasi</div>
+              <div className="badge-glow contact-badge">{t('contact_badge')}</div>
               <h2 className="contact-title text-white">
-                Hubungi Toko <span className="gradient-text-accent">Listrik Jaya</span>
+                {t('contact_title')}
               </h2>
               <p className="contact-subtitle">
-                Siap melayani kebutuhan grosir, eceran, maupun penawaran harga khusus untuk proyek listrik rumah dan usaha Anda.
+                {t('contact_desc')}
               </p>
             </div>
 

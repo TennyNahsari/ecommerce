@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiService, parseJSON } from '../services/api';
 import { ArrowLeft, Layout, Code, TrendingUp, Sparkles, CheckCircle2, ArrowUpRight, Tag, Layers, Search, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const iconMap = {
   Layout: Layout,
@@ -10,8 +11,9 @@ const iconMap = {
 };
 
 export default function AllServicesPage({ onBack, onOrderProduct }) {
+  const { lang, t } = useLanguage();
   const [services, setServices] = useState([]);
-  const [categories, setCategories] = useState([{ name: 'SEMUA', slug: 'all' }]);
+  const [categories, setCategories] = useState([{ name: lang === 'en' ? 'ALL' : 'SEMUA', slug: 'all' }]);
   const [filter, setFilter] = useState('SEMUA');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -26,13 +28,13 @@ export default function AllServicesPage({ onBack, onOrderProduct }) {
         ]);
         setServices(servData || []);
         if (catData && catData.length > 0) {
-          setCategories([{ name: 'SEMUA', slug: 'all' }, ...catData]);
+          setCategories([{ name: lang === 'en' ? 'ALL' : 'SEMUA', slug: 'all' }, ...catData]);
         }
       } catch (e) {}
       setLoading(false);
     }
     loadAllServices();
-  }, []);
+  }, [lang]);
 
   const filteredServices = services.filter(s => {
     const matchesFilter = filter === 'SEMUA' || filter === 'ALL' || 
@@ -64,7 +66,9 @@ export default function AllServicesPage({ onBack, onOrderProduct }) {
     return (
       <div className="subpage-top-clearance min-h-screen pb-20 flex flex-col items-center justify-center text-center">
         <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-xs text-slate-400">Memuat katalog produk peralatan listrik...</p>
+        <p className="text-xs text-slate-400">
+          {lang === 'en' ? 'Loading product catalog...' : 'Memuat katalog produk peralatan listrik...'}
+        </p>
       </div>
     );
   }
@@ -80,19 +84,19 @@ export default function AllServicesPage({ onBack, onOrderProduct }) {
             className="inline-flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-indigo-500/50 transition-all shadow-lg"
           >
             <ArrowLeft className="w-4 h-4 text-indigo-400" />
-            <span>Kembali ke Beranda</span>
+            <span>{lang === 'en' ? 'Back to Home' : 'Kembali ke Beranda'}</span>
           </button>
         </div>
 
         {/* Directory Header Banner */}
         <div className="glass-panel p-8 md:p-12 rounded-3xl border border-indigo-500/30 shadow-2xl mb-12 w-full text-center flex flex-col items-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -z-10" />
-          <div className="badge-glow mb-3 mx-auto">Katalog Peralatan Listrik Lengkap</div>
+          <div className="badge-glow mb-3 mx-auto">{t('section_services_badge')}</div>
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center">
-            Semua Produk Peralatan Listrik
+            {lang === 'en' ? 'All Electrical Products' : 'Semua Produk Peralatan Listrik'}
           </h1>
           <p className="text-slate-300 text-sm md:text-base max-w-2xl text-center leading-relaxed mb-6">
-            Jelajahi produk listrik lengkap dari Toko Listrik Jaya UMKM: kabel, stop kontak, sakelar, lampu LED, MCB, dan perkakas teknisi berstandar SNI.
+            {t('section_services_desc')}
           </p>
 
           {/* Search Bar */}
@@ -100,7 +104,7 @@ export default function AllServicesPage({ onBack, onOrderProduct }) {
             <Search className="w-4 h-4 text-slate-400 absolute left-4 top-3.5" />
             <input 
               type="text"
-              placeholder="Cari kabel, lampu LED, stop kontak, sakelar..."
+              placeholder={lang === 'en' ? 'Search cables, LED lights, sockets, switches...' : 'Cari kabel, lampu LED, stop kontak, sakelar...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="glass-input w-full pl-11 pr-4 py-2.5 text-xs text-white"
@@ -183,7 +187,7 @@ export default function AllServicesPage({ onBack, onOrderProduct }) {
                         </span>
                       ) : (
                         <span className="text-xs font-semibold text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">
-                          Minta Penawaran Harga
+                          {t('ask_offer')}
                         </span>
                       )}
                     </div>
@@ -211,7 +215,7 @@ export default function AllServicesPage({ onBack, onOrderProduct }) {
                         onClick={(e) => { e.stopPropagation(); handleServiceClick(service.slug); }}
                         className="product-card-btn flex-1 text-center font-bold text-slate-300 hover:text-white rounded-xl border border-white/10 hover:border-white/20 bg-white/5 transition-all flex items-center justify-center gap-1 text-[11px]"
                       >
-                        <span>Detail</span>
+                        <span>{t('btn_view_details')}</span>
                       </button>
 
                       <button
@@ -221,7 +225,7 @@ export default function AllServicesPage({ onBack, onOrderProduct }) {
                         }}
                         className="product-card-btn flex-1 text-center font-bold text-white rounded-xl bg-indigo-600 hover:bg-indigo-500 shadow-md transition-all flex items-center justify-center gap-1 text-[11px]"
                       >
-                        <span>Pesan</span>
+                        <span>{t('btn_buy_now')}</span>
                         <ArrowRight className="w-3 h-3" />
                       </button>
                     </div>

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Instagram, Twitter, Facebook, Linkedin, Youtube, AtSign, ArrowUp, Mail, Phone, MapPin } from 'lucide-react';
 import { apiService } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Footer() {
+  const { lang, setLang, t } = useLanguage();
   const [footerSettings, setFooterSettings] = useState({
     company_name: 'Toko Listrik Jaya UMKM',
     company_bio: 'Pusat grosir & eceran peralatan listrik terpercaya untuk kebutuhan rumah tangga, instalasi gedung, toko, dan UMKM. Produk 100% berkualitas & berstandar SNI.',
@@ -50,8 +52,31 @@ export default function Footer() {
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              {footerSettings.company_bio}
+              {lang === 'en' 
+                ? 'Trusted wholesale & retail center for electrical equipment for households, building installations, shops, and MSMEs. 100% quality & SNI standard products.' 
+                : footerSettings.company_bio}
             </p>
+
+            {/* Language Switcher Pill */}
+            <div className="flex items-center gap-2 pt-1">
+              <span className="text-[11px] font-bold text-slate-400 uppercase">Bahasa / Language:</span>
+              <div className="flex items-center bg-slate-900 rounded-xl p-1 border border-white/15 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setLang('id')}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${lang === 'id' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                >
+                  🇮🇩 ID
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLang('en')}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${lang === 'en' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                >
+                  🇬🇧 EN
+                </button>
+              </div>
+            </div>
 
             {/* Address & Contact Info */}
             <div className="space-y-1.5 pt-1 text-xs text-slate-400">
@@ -112,22 +137,22 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Kategori Produk</h4>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">{t('footer_categories')}</h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
-              <li><a href="#services" className="hover:text-indigo-400 transition-colors">Kabel & Instalasi Listrik</a></li>
-              <li><a href="#services" className="hover:text-indigo-400 transition-colors">Stop Kontak & Sakelar</a></li>
-              <li><a href="#services" className="hover:text-indigo-400 transition-colors">Lampu LED Hemat Energi</a></li>
-              <li><a href="#services" className="hover:text-indigo-400 transition-colors">Komponen & Pengaman MCB</a></li>
+              <li><a href="#services" className="hover:text-indigo-400 transition-colors">{lang === 'en' ? 'Cables & Installation' : 'Kabel & Instalasi Listrik'}</a></li>
+              <li><a href="#services" className="hover:text-indigo-400 transition-colors">{lang === 'en' ? 'Sockets & Switches' : 'Stop Kontak & Sakelar'}</a></li>
+              <li><a href="#services" className="hover:text-indigo-400 transition-colors">{lang === 'en' ? 'Energy Efficient LED' : 'Lampu LED Hemat Energi'}</a></li>
+              <li><a href="#services" className="hover:text-indigo-400 transition-colors">{lang === 'en' ? 'MCB & Safety Switches' : 'Komponen & Pengaman MCB'}</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Informasi</h4>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">{t('footer_quick_links')}</h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
-              <li><a href="#hero" className="hover:text-indigo-400 transition-colors">Beranda Utama</a></li>
-              <li><a href="#about" className="hover:text-indigo-400 transition-colors">Profil Toko</a></li>
-              <li><a href="#blog" className="hover:text-indigo-400 transition-colors">Artikel & Tips Listrik</a></li>
-              <li><a href="#contact" className="hover:text-indigo-400 transition-colors">Kontak & Pemesanan</a></li>
+              <li><a href="#hero" className="hover:text-indigo-400 transition-colors">{t('nav_home')}</a></li>
+              <li><a href="#about" className="hover:text-indigo-400 transition-colors">{t('nav_about')}</a></li>
+              <li><a href="#blog" className="hover:text-indigo-400 transition-colors">{t('nav_blog')}</a></li>
+              <li><a href="#contact" className="hover:text-indigo-400 transition-colors">{t('nav_contact')}</a></li>
             </ul>
           </div>
 
@@ -135,13 +160,13 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 w-full">
-          <p>{footerSettings.copyright_text || `© ${new Date().getFullYear()} DigiAgency Aetheric. All rights reserved.`}</p>
+          <p>{lang === 'en' ? t('footer_copyright') : (footerSettings.copyright_text || t('footer_copyright'))}</p>
           
           <button 
             onClick={scrollToTop}
             className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
           >
-            <span>Back to top</span>
+            <span>{lang === 'en' ? 'Back to top' : 'Ke Atas'}</span>
             <ArrowUp className="w-4 h-4" />
           </button>
         </div>

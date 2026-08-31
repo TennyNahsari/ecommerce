@@ -1,8 +1,41 @@
 import React, { useState } from 'react';
 import { Search, X, Package, Clock, CheckCircle2, Truck, AlertCircle, Upload, Copy, Send, QrCode } from 'lucide-react';
 import { apiService } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
+
+const formatDeadlineText = (deadline, createdAt, lang = 'id') => {
+  let dateObj = null;
+  if (deadline) {
+    dateObj = new Date(deadline);
+  } else if (createdAt) {
+    dateObj = new Date(new Date(createdAt).getTime() + 60 * 60 * 1000);
+  }
+  if (!dateObj || isNaN(dateObj.getTime())) return '-';
+
+  if (lang === 'en') {
+    return dateObj.toLocaleString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
+  return dateObj.toLocaleString('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }) + ' WIB';
+};
 
 export default function OrderTrackingModal({ onClose }) {
+  const { lang, setLang, t } = useLanguage();
   const [query, setQuery] = useState('');
   const [orders, setOrders] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -117,9 +150,32 @@ export default function OrderTrackingModal({ onClose }) {
         </button>
 
         {/* Header */}
-        <div className="mb-6 pb-4 border-b border-white/10 tracking-modal-header pr-12">
-          <h2 className="text-2xl font-extrabold text-white">Cek Status Pesanan &amp; Pembayaran</h2>
-          <p className="text-xs text-slate-400 mt-2">Masukkan Kode Pesanan (misal: TLJ-20260825-XXXX) atau Nomor WhatsApp Anda.</p>
+        <div className="mb-6 pb-4 border-b border-white/10 tracking-modal-header pr-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-white">
+              {lang === 'en' ? 'Check Order & Payment Status' : 'Cek Status Pesanan & Pembayaran'}
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              {lang === 'en' ? 'Enter Order Code (e.g. TLJ-20260825-XXXX) or your WhatsApp number.' : 'Masukkan Kode Pesanan (misal: TLJ-20260825-XXXX) atau Nomor WhatsApp Anda.'}
+            </p>
+          </div>
+
+          <div className="flex items-center bg-slate-900/80 rounded-xl p-1 border border-white/10 shrink-0 self-end sm:self-auto">
+            <button
+              type="button"
+              onClick={() => setLang('id')}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${lang === 'id' ? 'bg-amber-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'}`}
+            >
+              🇮🇩 ID
+            </button>
+            <button
+              type="button"
+              onClick={() => setLang('en')}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${lang === 'en' ? 'bg-amber-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'}`}
+            >
+              🇬🇧 EN
+            </button>
+          </div>
         </div>
 
         {/* Search Input Form */}
@@ -130,14 +186,14 @@ export default function OrderTrackingModal({ onClose }) {
               <input 
                 type="text" 
                 required
-                placeholder="Contoh: TLJ-20260825-8A92 atau 081234567890"
+                placeholder={lang === 'en' ? 'e.g., TLJ-20260825-8A92 or 081234567890' : 'Contoh: TLJ-20260825-8A92 atau 081234567890'}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className="glass-input w-full text-xs font-mono text-indigo-300 tracking-modal-search-input"
               />
             </div>
             <button type="submit" disabled={loading} className="btn-primary py-3 px-6 text-xs font-bold shadow-lg shrink-0 tracking-modal-search-btn">
-              {loading ? 'Mencari...' : 'Cek Status'}
+              {loading ? (lang === 'en' ? 'Searching...' : 'Mencari...') : (lang === 'en' ? 'Check Status' : 'Cek Status')}
             </button>
           </div>
         </form>
@@ -164,25 +220,43 @@ export default function OrderTrackingModal({ onClose }) {
                 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4 tracking-modal-card-header">
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Kode Pesanan</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                      {lang === 'en' ? 'Order Code' : 'Kode Pesanan'}
+                    </span>
                     <span className="text-xl font-extrabold text-white font-mono">{order.order_code}</span>
                   </div>
                   <div>{getStatusBadge(order.status)}</div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs text-slate-300 tracking-modal-info-grid">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs text-slate-300 tracking-modal-info-grid">
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Nama Pembeli</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
+                      {lang === 'en' ? 'Buyer Name' : 'Nama Pembeli'}
+                    </span>
                     <span className="font-bold text-white text-sm block">{order.customer_name}</span>
                     <span className="font-mono text-indigo-300 text-xs">{order.customer_phone}</span>
                   </div>
 
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Tanggal Pesanan</span>
-                    <span className="font-mono text-xs">{new Date(order.created_at || Date.now()).toLocaleString('id-ID')}</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
+                      {lang === 'en' ? 'Order Date' : 'Tanggal Pesanan'}
+                    </span>
+                    <span className="font-mono text-xs">
+                      {new Date(order.created_at || Date.now()).toLocaleString(lang === 'en' ? 'en-US' : 'id-ID')}
+                    </span>
                   </div>
 
-                  <div className="md:col-span-2">
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-col justify-center">
+                    <span className="text-[10px] font-bold text-amber-300 uppercase flex items-center gap-1 mb-1">
+                      <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span>{lang === 'en' ? 'Payment Deadline' : 'Bayar Paling Telat'}</span>
+                    </span>
+                    <span className="font-mono text-xs font-bold text-amber-200 block break-words">
+                      {formatDeadlineText(order.payment_deadline, order.created_at, lang)}
+                    </span>
+                  </div>
+
+                  <div className="md:col-span-3">
                     <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Alamat Pengiriman</span>
                     <p className="text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-3.5 rounded-xl border border-white/5 tracking-modal-address-box">{order.shipping_address}</p>
                   </div>

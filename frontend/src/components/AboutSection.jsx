@@ -1,32 +1,35 @@
 import React from 'react';
 import { Target, Eye, Globe, Shield, Award, CheckCircle } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function AboutSection() {
+  const { lang, t } = useLanguage();
+
   const teamMembers = [
     {
       name: 'Hadi Suryanto',
-      role: 'Pendiri & Pemilik UMKM',
-      bio: 'Pengalaman 15+ tahun dalam penyediaan komponen & peralatan listrik terpercaya untuk kebutuhan perumahan dan proyek.',
+      role: lang === 'en' ? 'Founder & Store Owner' : 'Pendiri & Pemilik UMKM',
+      bio: lang === 'en' ? '15+ years experience in supplying trusted electrical components and equipment for homes and projects.' : 'Pengalaman 15+ tahun dalam penyediaan komponen & peralatan listrik terpercaya untuk kebutuhan perumahan dan proyek.',
       avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400'
     },
     {
       name: 'Rina Wijaya',
-      role: 'Kepala Layanan Pelanggan & Pemesanan',
-      bio: 'Siap membantu konsultasi spesifikasi peralatan listrik, penawaran harga grosir, dan respon cepat pemesanan.',
+      role: lang === 'en' ? 'Head of Customer Service & Orders' : 'Kepala Layanan Pelanggan & Pemesanan',
+      bio: lang === 'en' ? 'Ready to assist with specification consultations, wholesale quotes, and fast order responses.' : 'Siap membantu konsultasi spesifikasi peralatan listrik, penawaran harga grosir, dan respon cepat pemesanan.',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400'
     },
     {
       name: 'Budi Santoso',
-      role: 'Teknisi & Penanggung Jawab Kualitas',
-      bio: 'Memastikan setiap unit kabel, sakelar, stop kontak, dan MCB yang dikirim telah lulus pengujian standar mutu SNI.',
+      role: lang === 'en' ? 'Technician & Quality Assurance' : 'Teknisi & Penanggung Jawab Kualitas',
+      bio: lang === 'en' ? 'Ensuring every unit of cable, switch, socket, and MCB shipped passes SNI quality standards.' : 'Memastikan setiap unit kabel, sakelar, stop kontak, dan MCB yang dikirim telah lulus pengujian standar mutu SNI.',
       avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=400'
     }
   ];
 
   const coreValues = [
-    { icon: Shield, title: 'Produk 100% Original & SNI', desc: 'Seluruh kabel, sakelar, stop kontak, dan komponen listrik terjamin standar keamanan SNI.' },
-    { icon: Award, title: 'Harga Grosir & Eceran Berkualitas', desc: 'Memberikan penawaran harga terbaik yang terjangkau untuk kebutuhan rumah tangga maupun proyek UMKM.' },
-    { icon: CheckCircle, title: 'Garansi & Pengiriman Cepat', desc: 'Jaminan garansi toko resmi serta pengiriman barang aman, tepat waktu, dan terkemas rapi.' }
+    { icon: Shield, title: t('feat_1_title'), desc: t('feat_1_desc') },
+    { icon: Award, title: t('feat_2_title'), desc: t('feat_2_desc') },
+    { icon: CheckCircle, title: lang === 'en' ? 'Warranty & Fast Shipping' : 'Garansi & Pengiriman Cepat', desc: lang === 'en' ? 'Official warranty with safe, timely, and neat packaging.' : 'Jaminan garansi toko resmi serta pengiriman barang aman, tepat waktu, dan terkemas rapi.' }
   ];
 
   return (
@@ -36,25 +39,27 @@ export default function AboutSection() {
         {/* Story Intro */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-12 md:mb-16 w-full">
           <div>
-            <div className="badge-glow mb-4">Tentang Toko Listrik Jaya UMKM</div>
+            <div className="badge-glow mb-4">{t('about_badge')}</div>
             <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6">
-              Mitra Peralatan Listrik <span className="gradient-text-accent">Terpercaya</span> & Berkualitas
+              {t('about_title')}
             </h2>
             <p className="text-slate-300 text-base md:text-lg mb-6 leading-relaxed">
-              Toko Listrik Jaya UMKM berdiri sebagai pusat grosir dan eceran peralatan listrik berkualitas tinggi. Kami menyediakan solusi lengkap mulai dari kabel tembaga murni, stop kontak tahan panas, sakelar modern, lampu LED hemat energi, hingga pengaman listrik MCB berstandar SNI.
+              {t('about_desc')}
             </p>
             <p className="text-slate-400 text-sm md:text-base leading-relaxed mb-8">
-              Kami berkomitmen melayani kebutuhan masyarakat, instalatur listrik, kontraktor bangunan, serta para pelaku usaha UMKM dengan produk aman, awet, dan harga bersahabat.
+              {lang === 'en' 
+                ? 'We are committed to serving the needs of the community, electrical installers, building contractors, and MSMEs with safe, durable, and friendly priced products.' 
+                : 'Kami berkomitmen melayani kebutuhan masyarakat, instalatur listrik, kontraktor bangunan, serta para pelaku usaha UMKM dengan produk aman, awet, dan harga bersahabat.'}
             </p>
 
             <div className="grid grid-cols-2 gap-6 pt-4 border-t border-white/10">
               <div>
                 <span className="text-2xl md:text-3xl font-extrabold text-indigo-400">100%</span>
-                <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">Berstandar SNI</span>
+                <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">{t('stat_warranty')}</span>
               </div>
               <div>
                 <span className="text-2xl md:text-3xl font-extrabold text-purple-400">5.000+</span>
-                <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">Pelanggan Puas</span>
+                <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">{t('stat_customers')}</span>
               </div>
             </div>
           </div>

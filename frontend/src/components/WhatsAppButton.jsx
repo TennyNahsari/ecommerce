@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function WhatsAppButton() {
+  const { lang, t } = useLanguage();
   const [waNumber, setWaNumber] = useState('6281234567890');
   const [displayPhone, setDisplayPhone] = useState('+62 812-3456-7890');
 
@@ -26,9 +28,11 @@ export default function WhatsAppButton() {
     loadPhone();
   }, []);
 
-  const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(
-    'Halo Toko Listrik Jaya UMKM, saya ingin menanyakan informasi produk & penawaran harga.'
-  )}`;
+  const prefilledMsg = lang === 'en'
+    ? 'Hello Toko Listrik Jaya UMKM, I would like to inquire about product details and pricing offers.'
+    : 'Halo Toko Listrik Jaya UMKM, saya ingin menanyakan informasi produk & penawaran harga.';
+
+  const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(prefilledMsg)}`;
 
   return (
     <a
@@ -41,7 +45,7 @@ export default function WhatsAppButton() {
       {/* Tooltip Label */}
       <span className="hidden sm:inline-flex items-center px-3.5 py-1.5 rounded-full bg-slate-900/90 text-white text-xs font-bold border border-emerald-500/40 shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 backdrop-blur-md">
         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping mr-2" />
-        Chat WA Fast Response
+        {lang === 'en' ? 'Chat WhatsApp Fast Response' : 'Chat WA Fast Response'}
       </span>
 
       {/* Floating Glowing Icon Button */}

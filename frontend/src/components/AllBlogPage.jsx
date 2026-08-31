@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { ArrowLeft, Calendar, Search, Tag, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function AllBlogPage({ onBack }) {
+  const { lang, t } = useLanguage();
   const [posts, setPosts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -36,7 +38,9 @@ export default function AllBlogPage({ onBack }) {
     return (
       <div className="subpage-top-clearance min-h-screen pb-20 flex flex-col items-center justify-center text-center">
         <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-xs text-slate-400">Memuat artikel &amp; panduan kelistrikan...</p>
+        <p className="text-xs text-slate-400">
+          {lang === 'en' ? 'Loading articles & guides...' : 'Memuat artikel & panduan kelistrikan...'}
+        </p>
       </div>
     );
   }
@@ -52,19 +56,19 @@ export default function AllBlogPage({ onBack }) {
             className="inline-flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-indigo-500/50 transition-all shadow-lg"
           >
             <ArrowLeft className="w-4 h-4 text-indigo-400" />
-            <span>Kembali ke Beranda</span>
+            <span>{lang === 'en' ? 'Back to Home' : 'Kembali ke Beranda'}</span>
           </button>
         </div>
 
         {/* Directory Header Banner */}
         <div className="glass-panel p-8 md:p-12 rounded-3xl border border-indigo-500/30 shadow-2xl mb-12 w-full text-center flex flex-col items-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -z-10" />
-          <div className="badge-glow mb-3 mx-auto">Direktori Edukasi Listrik</div>
+          <div className="badge-glow mb-3 mx-auto">{t('blog_badge')}</div>
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center">
-            Semua Artikel &amp; Panduan Kelistrikan
+            {lang === 'en' ? 'All Electrical Articles & Guides' : 'Semua Artikel & Panduan Kelistrikan'}
           </h1>
           <p className="text-slate-300 text-sm md:text-base max-w-2xl text-center leading-relaxed mb-6">
-            Temukan artikel seputar pemilihan kabel listrik SNI, lampu LED hemat energi, pencegahan korsleting, dan panduan teknisi listrik.
+            {t('blog_desc')}
           </p>
 
           {/* Search Bar */}
@@ -72,7 +76,7 @@ export default function AllBlogPage({ onBack }) {
             <Search className="w-4 h-4 text-slate-400 absolute left-4 top-3.5" />
             <input 
               type="text"
-              placeholder="Cari judul artikel, topik kabel, atau lampu LED..."
+              placeholder={lang === 'en' ? 'Search article title or topic...' : 'Cari judul artikel, topik kabel, atau lampu LED...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="glass-input w-full pl-11 pr-4 py-2.5 text-xs text-white"
@@ -96,7 +100,7 @@ export default function AllBlogPage({ onBack }) {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
                 <span className="absolute top-4 left-4 badge-glow text-[11px] bg-slate-950/80 backdrop-blur-md">
-                  {post.category_name || 'Edukasi Listrik'}
+                  {post.category_name || (lang === 'en' ? 'Electrical Tips' : 'Edukasi Listrik')}
                 </span>
               </div>
 
@@ -104,7 +108,7 @@ export default function AllBlogPage({ onBack }) {
                 <div>
                   <div className="blog-card-date text-slate-400">
                     <Calendar className="w-4 h-4 text-indigo-400 shrink-0" />
-                    <span>{post.created_at ? new Date(post.created_at).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' }) : '2026'}</span>
+                    <span>{post.created_at ? new Date(post.created_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'id-ID', { month: 'short', day: 'numeric', year: 'numeric' }) : '2026'}</span>
                   </div>
                   <h3 className="blog-card-title text-white group-hover:text-indigo-300 transition-colors">
                     {post.title}
@@ -116,7 +120,7 @@ export default function AllBlogPage({ onBack }) {
 
                 <div className="blog-card-footer">
                   <span className="text-xs font-bold text-indigo-300 group-hover:text-white flex items-center gap-1.5 transition-colors">
-                    <span>Baca Artikel Selengkapnya</span>
+                    <span>{t('btn_read_more')}</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>

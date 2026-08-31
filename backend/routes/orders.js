@@ -54,6 +54,10 @@ let memoryQris = {
   qris_image_url: null
 };
 
+// Ensure payment_deadline column exists in orders table
+db.query("ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_deadline TIMESTAMP")
+  .catch(err => console.warn('Could not add payment_deadline column automatically:', err.message));
+
 // Helper to generate unique order code: TLJ-20260825-8A92
 function generateOrderCode() {
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -283,9 +287,9 @@ router.post('/', async (req, res) => {
       const order_code = generateOrderCode();
 
       const orderResult = await db.query(
-        `INSERT INTO orders (order_code, customer_name, customer_phone, customer_email, shipping_address, notes, total_amount, status)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'PENDING_PAYMENT') RETURNING *`,
-        [order_code, customer_name, customer_phone, customer_email || '', shipping_address, notes || '', total_amount || 0, ]
+        `INSERT INTO orders (order_code, customer_name, customer_phone, customer_email, shipping_address, notes, total_amount, status, payment_deadline)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'PENDING_PAYMENT', NOW() + INTERVAL '1 hour') RETURNING *`,
+        [order_code, customer_name, customer_phone, customer_email || '', shipping_address, notes || '', total_amount || 0]
       );
 
       targetOrder = orderResult.rows[0];
@@ -318,6 +322,7 @@ router.post('/', async (req, res) => {
     console.error('Error creating/merging order:', err);
     // Fallback memory order creation
     const order_code = generateOrderCode();
+    const deadlineDate = new Date(Date.now() + 60 * 60 * 1000);
     const newOrder = {
       id: Date.now(),
       order_code,
@@ -328,6 +333,7 @@ router.post('/', async (req, res) => {
       notes: notes || '',
       total_amount: total_amount || 0,
       status: 'PENDING_PAYMENT',
+      payment_deadline: deadlineDate.toISOString(),
       created_at: new Date().toISOString()
     };
     memoryOrders.unshift(newOrder);
@@ -346,6 +352,15 @@ router.get('/track/:query', async (req, res) => {
   const cleanQuery = query.trim();
 
   try {
+    // Auto-cancel expired PENDING_PAYMENT orders
+    await db.query(
+      `UPDATE orders 
+       SET status = 'CANCELLED', updated_at = NOW() 
+       WHERE status = 'PENDING_PAYMENT' 
+         AND payment_deadline IS NOT NULL 
+         AND payment_deadline < NOW()`
+    );
+
     const orderResult = await db.query(
       `SELECT * FROM orders WHERE LOWER(order_code) = LOWER($1) OR customer_phone = $1 ORDER BY id DESC`,
       [cleanQuery]
@@ -363,6 +378,15 @@ router.get('/track/:query', async (req, res) => {
 
     return res.json({ success: true, data: ordersWithItems });
   } catch (err) {
+    const now = new Date();
+    memoryOrders.forEach(o => {
+      if (o.status === 'PENDING_PAYMENT' && o.payment_deadline) {
+        if (new Date(o.payment_deadline) < now) {
+          o.status = 'CANCELLED';
+        }
+      }
+    });
+
     const found = memoryOrders.filter(
       o => o.order_code.toLowerCase() === cleanQuery.toLowerCase() || o.customer_phone === cleanQuery
     );
@@ -426,6 +450,15 @@ router.get('/', verifyToken, async (req, res) => {
   const { status } = req.query;
 
   try {
+    // Auto-cancel expired PENDING_PAYMENT orders
+    await db.query(
+      `UPDATE orders 
+       SET status = 'CANCELLED', updated_at = NOW() 
+       WHERE status = 'PENDING_PAYMENT' 
+         AND payment_deadline IS NOT NULL 
+         AND payment_deadline < NOW()`
+    );
+
     let queryStr = `SELECT * FROM orders ORDER BY id DESC`;
     let queryParams = [];
 
@@ -444,6 +477,15 @@ router.get('/', verifyToken, async (req, res) => {
 
     return res.json({ success: true, data: ordersWithItems });
   } catch (err) {
+    const now = new Date();
+    memoryOrders.forEach(o => {
+      if (o.status === 'PENDING_PAYMENT' && o.payment_deadline) {
+        if (new Date(o.payment_deadline) < now) {
+          o.status = 'CANCELLED';
+        }
+      }
+    });
+
     let filtered = memoryOrders;
     if (status && status !== 'ALL') {
       filtered = memoryOrders.filter(o => o.status === status);

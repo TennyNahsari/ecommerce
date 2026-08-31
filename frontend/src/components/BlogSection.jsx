@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, ArrowRight } from 'lucide-react';
 import { apiService } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function BlogSection() {
+  const { lang, t } = useLanguage();
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -35,12 +37,12 @@ export default function BlogSection() {
 
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col items-center justify-center">
-          <div className="badge-glow mb-4 mx-auto">Edukasi &amp; Tips Kelistrikan</div>
+          <div className="badge-glow mb-4 mx-auto">{t('blog_badge')}</div>
           <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center">
-            Artikel &amp; <span className="gradient-text">Panduan Instalasi</span>
+            {t('blog_title')}
           </h2>
           <p className="text-slate-400 text-base md:text-lg text-center">
-            Tips praktis memilih kabel listrik, panduan hemat energi lampu LED, serta instruksi keamanan cegah korsleting rumah &amp; toko.
+            {t('blog_desc')}
           </p>
         </div>
 
@@ -61,7 +63,7 @@ export default function BlogSection() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
                 <span className="absolute top-4 left-4 badge-glow text-[11px] bg-slate-950/80 backdrop-blur-md">
-                  {post.category_name || 'Edukasi Listrik'}
+                  {post.category_name || (lang === 'en' ? 'Electrical Tips' : 'Edukasi Listrik')}
                 </span>
               </div>
 
@@ -70,7 +72,7 @@ export default function BlogSection() {
                 <div>
                   <div className="blog-card-date text-slate-400">
                     <Calendar className="w-4 h-4 text-indigo-400 shrink-0" />
-                    <span>{post.created_at ? new Date(post.created_at).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' }) : '2026'}</span>
+                    <span>{post.created_at ? new Date(post.created_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'id-ID', { month: 'short', day: 'numeric', year: 'numeric' }) : '2026'}</span>
                   </div>
                   <h3 className="blog-card-title text-white group-hover:text-indigo-300 transition-colors">
                     {post.title}
@@ -82,7 +84,7 @@ export default function BlogSection() {
 
                 <div className="blog-card-footer">
                   <span className="text-xs font-bold text-indigo-300 group-hover:text-white flex items-center gap-1.5 transition-colors">
-                    <span>Baca Artikel Selengkapnya</span>
+                    <span>{t('btn_read_more')}</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>
@@ -97,7 +99,7 @@ export default function BlogSection() {
             onClick={handleExploreAllBlog}
             className="btn-secondary py-3.5 px-8 text-xs font-bold flex items-center gap-2 group"
           >
-            <span>Lihat Semua Artikel &amp; Edukasi Listrik ({posts.length})</span>
+            <span>{t('btn_all_articles')} ({posts.length})</span>
             <ArrowRight className="w-4 h-4 text-indigo-400 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

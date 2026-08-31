@@ -3,6 +3,7 @@ import {
   LayoutDashboard, FileText, Image, Sliders, Menu as MenuIcon, X,
   MessageSquare, FolderOpen, LogOut, Sparkles, Globe, ChevronRight, Tag, Layers, ShoppingBag
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 import Dashboard from './Dashboard';
 import PageBuilder from './PageBuilder';
 import PostManager from './PostManager';
@@ -16,21 +17,22 @@ import OrderManager from './OrderManager';
 import FooterManager from './FooterManager';
 
 export default function AdminLayout({ user, onLogout, onCloseAdmin }) {
+  const { lang, setLang, t } = useLanguage();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'orders', label: 'Pesanan E-Commerce', icon: ShoppingBag },
-    { id: 'services', label: 'Katalog & Produk', icon: Layers },
-    { id: 'categories', label: 'Category Manager', icon: Tag },
-    { id: 'menus', label: 'Header Navigation', icon: MenuIcon },
-    { id: 'sliders', label: 'Hero Sliders', icon: Sliders },
-    { id: 'posts', label: 'Blog & Artikel', icon: FolderOpen },
-    { id: 'pages', label: 'Page Builder (HTML/CSS)', icon: FileText },
-    { id: 'media', label: 'Media Library', icon: Image },
-    { id: 'footer', label: 'Footer & Contact Settings', icon: Globe },
-    { id: 'inquiries', label: 'Pesan & Pertanyaan', icon: MessageSquare },
+    { id: 'orders', label: t('admin_nav_orders'), icon: ShoppingBag },
+    { id: 'services', label: t('admin_nav_services'), icon: Layers },
+    { id: 'categories', label: t('admin_nav_categories'), icon: Tag },
+    { id: 'menus', label: lang === 'en' ? 'Header Navigation' : 'Header Navigation', icon: MenuIcon },
+    { id: 'sliders', label: t('admin_nav_sliders'), icon: Sliders },
+    { id: 'posts', label: t('admin_nav_posts'), icon: FolderOpen },
+    { id: 'pages', label: lang === 'en' ? 'Page Builder (HTML/CSS)' : 'Page Builder (HTML/CSS)', icon: FileText },
+    { id: 'media', label: t('admin_nav_media'), icon: Image },
+    { id: 'footer', label: lang === 'en' ? 'Footer & Settings' : 'Footer & Pengaturan', icon: Globe },
+    { id: 'inquiries', label: t('admin_nav_inquiries'), icon: MessageSquare },
   ];
 
   const activeItem = menuItems.find(i => i.id === activeTab) || menuItems[0];
@@ -70,7 +72,7 @@ export default function AdminLayout({ user, onLogout, onCloseAdmin }) {
       `}>
         <div className="overflow-y-auto">
           {/* Logo Branding */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold">
                 <Sparkles className="w-5 h-5" />
@@ -84,6 +86,27 @@ export default function AdminLayout({ user, onLogout, onCloseAdmin }) {
             <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-slate-400 hover:text-white">
               <X className="w-5 h-5" />
             </button>
+          </div>
+
+          {/* Admin Language Switcher */}
+          <div className="flex items-center justify-between bg-slate-900/80 p-2 rounded-xl border border-white/10 mb-6">
+            <span className="text-[10px] font-bold text-slate-400 uppercase pl-1">Language:</span>
+            <div className="flex items-center bg-slate-950 rounded-lg p-0.5 border border-white/10">
+              <button
+                type="button"
+                onClick={() => setLang('id')}
+                className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${lang === 'id' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+              >
+                🇮🇩 ID
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang('en')}
+                className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${lang === 'en' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+              >
+                🇬🇧 EN
+              </button>
+            </div>
           </div>
 
           {/* Navigation Menu */}

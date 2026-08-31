@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Code, TrendingUp, Sparkles, CheckCircle2, ArrowUpRight, Tag, ArrowRight } from 'lucide-react';
 import { apiService, parseJSON } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 const iconMap = {
   Layout: Layout,
@@ -10,6 +11,7 @@ const iconMap = {
 };
 
 export default function ServicesSection({ onOrderProduct }) {
+  const { lang, t } = useLanguage();
   const [services, setServices] = useState([]);
 
   useEffect(() => {
@@ -51,12 +53,12 @@ export default function ServicesSection({ onOrderProduct }) {
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col items-center justify-center">
-          <div className="badge-glow mb-4 mx-auto">Katalog Peralatan Listrik</div>
+          <div className="badge-glow mb-4 mx-auto">{t('section_services_badge')}</div>
           <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center">
-            Pilihan Produk Listrik <span className="gradient-text-accent">Terbaik & SNI</span>
+            {t('section_services_title')}
           </h2>
           <p className="text-slate-400 text-base md:text-lg text-center">
-            Menyediakan kabel tembaga murni, stop kontak tahan panas, sakelar modern, lampu LED hemat energi, dan pengaman listrik bergaransi resmi.
+            {t('section_services_desc')}
           </p>
         </div>
 
@@ -122,7 +124,7 @@ export default function ServicesSection({ onOrderProduct }) {
                         </span>
                       ) : (
                         <span className="text-xs font-semibold text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">
-                          Minta Penawaran Harga
+                          {t('ask_offer')}
                         </span>
                       )}
                     </div>
@@ -150,7 +152,7 @@ export default function ServicesSection({ onOrderProduct }) {
                         onClick={(e) => { e.stopPropagation(); handleServiceClick(service.slug); }}
                         className="product-card-btn flex-1 text-center font-bold text-slate-300 hover:text-white rounded-xl border border-white/10 hover:border-white/20 bg-white/5 transition-all flex items-center justify-center gap-1 text-[11px]"
                       >
-                        <span>Detail</span>
+                        <span>{t('btn_view_details')}</span>
                       </button>
 
                       <button
@@ -160,7 +162,7 @@ export default function ServicesSection({ onOrderProduct }) {
                         }}
                         className="product-card-btn flex-1 text-center font-bold text-white rounded-xl bg-indigo-600 hover:bg-indigo-500 shadow-md transition-all flex items-center justify-center gap-1 text-[11px]"
                       >
-                        <span>Pesan</span>
+                        <span>{t('btn_buy_now')}</span>
                         <ArrowRight className="w-3 h-3" />
                       </button>
                     </div>
@@ -177,7 +179,7 @@ export default function ServicesSection({ onOrderProduct }) {
             onClick={handleExploreAllServices}
             className="btn-secondary py-3.5 px-8 text-xs font-bold flex items-center gap-2 group"
           >
-            <span>Lihat Seluruh Katalog Produk Listrik ({services.length})</span>
+            <span>{t('btn_view_all_products')} ({services.length})</span>
             <ArrowRight className="w-4 h-4 text-indigo-400 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

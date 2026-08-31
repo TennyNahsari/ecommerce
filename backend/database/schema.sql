@@ -297,10 +297,13 @@ CREATE TABLE IF NOT EXISTS orders (
     bank_account_info TEXT,
     total_amount NUMERIC(12,2) DEFAULT 0,
     status VARCHAR(50) DEFAULT 'PENDING_PAYMENT',
+    payment_deadline TIMESTAMP,
     proof_of_payment_url TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_deadline TIMESTAMP;
 
 -- 15. E-Commerce Order Items Table
 CREATE TABLE IF NOT EXISTS order_items (
