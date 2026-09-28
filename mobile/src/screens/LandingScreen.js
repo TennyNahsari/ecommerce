@@ -72,6 +72,28 @@ export default function LandingScreen({ onNavigate }) {
     setCurrentPage(prev => (prev < totalPages - 1 ? prev + 1 : 0));
   };
 
+  const getPageNumbers = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i);
+    }
+    const pages = [];
+    const current = safeCurrentPage;
+
+    pages.push(0, 1);
+    if (current > 2) {
+      pages.push('ellipsis-1');
+    }
+    if (current > 1 && current < totalPages - 2) {
+      pages.push(current);
+    }
+    if (current < totalPages - 3) {
+      pages.push('ellipsis-2');
+    }
+    pages.push(totalPages - 2, totalPages - 1);
+
+    return pages.filter((item, idx, self) => self.indexOf(item) === idx);
+  };
+
   // Touch Swipe Handlers for mobile horizontal paging
   const handleTouchStart = (e) => {
     touchStartRef.current = e.nativeEvent.pageX;
@@ -189,16 +211,30 @@ export default function LandingScreen({ onNavigate }) {
                     <Ionicons name="chevron-back" size={18} color={colors.white} />
                   </TouchableOpacity>
 
-                  {/* Dot Indicators */}
+                  {/* Number Indicators (Beberapa awal, ..., beberapa akhir) */}
                   <View style={styles.dotsContainer}>
-                    {Array.from({ length: totalPages }).map((_, idx) => {
-                      const isActive = idx === safeCurrentPage;
+                    {getPageNumbers().map((item) => {
+                      if (typeof item === 'string') {
+                        return (
+                          <Text key={item} style={{ color: colors.textMuted, fontSize: 12, marginHorizontal: 2 }}>
+                            ...
+                          </Text>
+                        );
+                      }
+                      const isActive = item === safeCurrentPage;
                       return (
                         <TouchableOpacity
-                          key={idx}
-                          onPress={() => setCurrentPage(idx)}
-                          style={[styles.dot, isActive && styles.activeDot]}
-                        />
+                          key={item}
+                          onPress={() => setCurrentPage(item)}
+                          style={[
+                            styles.numBtn,
+                            isActive && styles.activeNumBtn
+                          ]}
+                        >
+                          <Text style={[styles.numBtnText, isActive && styles.activeNumBtnText]}>
+                            {item + 1}
+                          </Text>
+                        </TouchableOpacity>
                       );
                     })}
                   </View>
@@ -358,7 +394,30 @@ const styles = StyleSheet.create({
   dotsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
+  },
+  numBtn: {
+    minWidth: 26,
+    height: 26,
+    paddingHorizontal: 6,
+    borderRadius: 6,
+    backgroundColor: colors.bgDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  activeNumBtn: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primaryLight,
+  },
+  numBtnText: {
+    color: colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  activeNumBtnText: {
+    color: colors.white,
   },
   dot: {
     width: 7,

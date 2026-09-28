@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, CheckCircle2, AlertCircle, Eye, RefreshCw, Building2, Save, Plus, Trash2, X, ExternalLink, Search, QrCode, Upload, Clock } from 'lucide-react';
+import { ShoppingBag, CheckCircle2, AlertCircle, Eye, RefreshCw, Building2, Save, Plus, Trash2, X, ExternalLink, Search, QrCode, Upload, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { apiService } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -84,6 +84,28 @@ export default function OrderManager() {
 
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage) || 1;
   const paginatedOrders = filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const getPageNumbers = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const pages = [];
+    const current = currentPage;
+
+    pages.push(1, 2);
+    if (current > 3) {
+      pages.push('ellipsis-1');
+    }
+    if (current > 2 && current < totalPages - 1) {
+      pages.push(current);
+    }
+    if (current < totalPages - 2) {
+      pages.push('ellipsis-2');
+    }
+    pages.push(totalPages - 1, totalPages);
+
+    return pages.filter((item, idx, self) => self.indexOf(item) === idx);
+  };
 
   useEffect(() => {
     setCurrentPage(1);
@@ -536,37 +558,55 @@ export default function OrderManager() {
                   </span>
 
                   <div className="flex items-center gap-2">
+                    {/* Prev Button */}
                     <button
                       type="button"
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 disabled:opacity-40 font-bold text-slate-300 transition-colors"
+                      className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 disabled:opacity-40 font-bold text-slate-300 transition-colors flex items-center gap-1 cursor-pointer"
+                      title={lang === 'en' ? 'Previous Page' : 'Halaman Sebelumnya'}
                     >
-                      &larr; {lang === 'en' ? 'Previous' : 'Sebelumnya'}
+                      <ChevronLeft className="w-4 h-4" />
+                      <span>Prev</span>
                     </button>
 
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-                      <button
-                        key={pg}
-                        type="button"
-                        onClick={() => setCurrentPage(pg)}
-                        className={`w-9 h-9 rounded-xl font-bold transition-all border ${
-                          currentPage === pg
-                            ? 'bg-indigo-600 border-indigo-400 text-white shadow-md'
-                            : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
-                        }`}
-                      >
-                        {pg}
-                      </button>
-                    ))}
+                    {/* Number Buttons (Beberapa Awal, ..., Beberapa Akhir) */}
+                    {getPageNumbers().map((item) => {
+                      if (typeof item === 'string') {
+                        return (
+                          <span key={item} className="text-slate-500 text-xs px-1 select-none">
+                            ...
+                          </span>
+                        );
+                      }
+                      const isActive = item === currentPage;
+                      return (
+                        <button
+                          key={item}
+                          type="button"
+                          onClick={() => setCurrentPage(item)}
+                          className={`w-9 h-9 rounded-xl font-bold transition-all border cursor-pointer ${
+                            isActive
+                              ? 'bg-indigo-600 border-indigo-400 text-white shadow-md'
+                              : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+                          }`}
+                          title={`Ke Halaman ${item}`}
+                        >
+                          {item}
+                        </button>
+                      );
+                    })}
 
+                    {/* Next Button */}
                     <button
                       type="button"
                       disabled={currentPage === totalPages}
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                      className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 disabled:opacity-40 font-bold text-slate-300 transition-colors"
+                      className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 disabled:opacity-40 font-bold text-slate-300 transition-colors flex items-center gap-1 cursor-pointer"
+                      title={lang === 'en' ? 'Next Page' : 'Halaman Selanjutnya'}
                     >
-                      {lang === 'en' ? 'Next' : 'Berikutnya'} &rarr;
+                      <span>Next</span>
+                      <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>

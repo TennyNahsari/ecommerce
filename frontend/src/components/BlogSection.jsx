@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, ArrowRight } from 'lucide-react';
+import { Calendar, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { apiService } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function BlogSection() {
   const { lang, t } = useLanguage();
   const [posts, setPosts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 3;
 
   useEffect(() => {
     async function loadPosts() {
@@ -14,6 +16,42 @@ export default function BlogSection() {
     }
     loadPosts();
   }, []);
+
+  const totalPages = Math.max(1, Math.ceil(posts.length / itemsPerPage));
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => (prev > 0 ? prev - 1 : totalPages - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
+  };
+
+  const handleGoToPage = (index) => {
+    setCurrentPage(index);
+  };
+
+  const getPageNumbers = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i);
+    }
+    const pages = [];
+    const current = currentPage;
+
+    pages.push(0, 1);
+    if (current > 2) {
+      pages.push('ellipsis-1');
+    }
+    if (current > 1 && current < totalPages - 2) {
+      pages.push(current);
+    }
+    if (current < totalPages - 3) {
+      pages.push('ellipsis-2');
+    }
+    pages.push(totalPages - 2, totalPages - 1);
+
+    return pages.filter((item, idx, self) => self.indexOf(item) === idx);
+  };
 
   const handlePostClick = (slug) => {
     const targetUrl = `/blog/${slug}`;
@@ -28,8 +66,9 @@ export default function BlogSection() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Limit top 3 articles on Homepage
-  const displayedPosts = posts.slice(0, 3);
+  // Paginated articles (3 items per page)
+  const startIndex = currentPage * itemsPerPage;
+  const displayedPosts = posts.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <section id="blog" className="w-full section-padding relative flex flex-col items-center justify-center">
@@ -46,8 +85,8 @@ export default function BlogSection() {
           </p>
         </div>
 
-        {/* Blog Posts Grid with Explicit !important Spacing */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full mb-16">
+        {/* Blog Posts Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full mb-8">
           {displayedPosts.map((post) => (
             <div 
               key={post.id || post.slug}
@@ -93,6 +132,69 @@ export default function BlogSection() {
           ))}
         </div>
 
+        {/* Pagination Controls (Prev, beberapa awal, ..., beberapa akhir, Next) */}
+        {totalPages > 1 && (
+          <div className="flex flex-col items-center gap-3 w-full mb-10">
+            <div className="flex items-center justify-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/10 shadow-lg">
+              {/* Prev Button */}
+              <button
+                onClick={handlePrevPage}
+                className="w-9 h-9 rounded-full bg-slate-800 hover:bg-indigo-600 border border-white/10 hover:border-indigo-400 flex items-center justify-center text-slate-300 hover:text-white transition-all shadow-md active:scale-95"
+                title="Artikel Sebelumnya"
+                aria-label="Previous Page"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {/* Number Buttons (Beberapa Halaman Awal & Beberapa Halaman Akhir) */}
+              <div className="flex items-center gap-1.5 px-1">
+                {getPageNumbers().map((item) => {
+                  if (typeof item === 'string') {
+                    return (
+                      <span key={item} className="text-slate-500 text-xs px-1 select-none">
+                        ...
+                      </span>
+                    );
+                  }
+                  const isActive = item === currentPage;
+                  return (
+                    <button
+                      key={item}
+                      onClick={() => handleGoToPage(item)}
+                      className={`min-w-[32px] h-8 px-2 rounded-lg text-xs font-bold transition-all ${
+                        isActive
+                          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30 border border-indigo-400'
+                          : 'bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700 border border-white/10'
+                      }`}
+                      title={`Ke Halaman ${item + 1}`}
+                      aria-label={`Go to page ${item + 1}`}
+                    >
+                      {item + 1}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Next Button */}
+              <button
+                onClick={handleNextPage}
+                className="w-9 h-9 rounded-full bg-slate-800 hover:bg-indigo-600 border border-white/10 hover:border-indigo-400 flex items-center justify-center text-slate-300 hover:text-white transition-all shadow-md active:scale-95"
+                title="Artikel Selanjutnya"
+                aria-label="Next Page"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Page Counter */}
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <span className="font-medium text-slate-300">
+                Artikel {startIndex + 1}-{Math.min(startIndex + itemsPerPage, posts.length)} dari {posts.length}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Explore All Insights CTA */}
         <div className="flex items-center justify-center">
           <button 
@@ -108,3 +210,4 @@ export default function BlogSection() {
     </section>
   );
 }
+

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiService, parseJSON } from '../services/api';
-import { ArrowLeft, Layout, Code, TrendingUp, Sparkles, CheckCircle2, ArrowUpRight, Tag, Layers, Search, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Layout, Code, TrendingUp, Sparkles, CheckCircle2, ArrowUpRight, Tag, Layers, Search, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const iconMap = {
@@ -17,6 +17,9 @@ export default function AllServicesPage({ onBack, onOrderProduct }) {
   const [filter, setFilter] = useState('SEMUA');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     async function loadAllServices() {
@@ -36,6 +39,10 @@ export default function AllServicesPage({ onBack, onOrderProduct }) {
     loadAllServices();
   }, [lang]);
 
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [filter, searchQuery]);
+
   const filteredServices = services.filter(s => {
     const matchesFilter = filter === 'SEMUA' || filter === 'ALL' || 
       (s.category_name && s.category_name.toLowerCase().includes(filter.toLowerCase())) ||
@@ -45,6 +52,42 @@ export default function AllServicesPage({ onBack, onOrderProduct }) {
       s.summary.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredServices.length / itemsPerPage));
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => (prev > 0 ? prev - 1 : totalPages - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
+  };
+
+  const handleGoToPage = (index) => {
+    setCurrentPage(index);
+  };
+
+  const getPageNumbers = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i);
+    }
+    const pages = [];
+    const current = currentPage;
+
+    pages.push(0, 1);
+    if (current > 2) {
+      pages.push('ellipsis-1');
+    }
+    if (current > 1 && current < totalPages - 2) {
+      pages.push(current);
+    }
+    if (current < totalPages - 3) {
+      pages.push('ellipsis-2');
+    }
+    pages.push(totalPages - 2, totalPages - 1);
+
+    return pages.filter((item, idx, self) => self.indexOf(item) === idx);
+  };
 
   const handleServiceClick = (slug) => {
     const targetUrl = `/service/${slug}`;
@@ -72,6 +115,9 @@ export default function AllServicesPage({ onBack, onOrderProduct }) {
       </div>
     );
   }
+
+  const startIndex = currentPage * itemsPerPage;
+  const displayedServices = filteredServices.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <article className="subpage-top-clearance min-h-screen pb-28 w-full flex flex-col items-center">
@@ -129,9 +175,9 @@ export default function AllServicesPage({ onBack, onOrderProduct }) {
           ))}
         </div>
 
-        {/* Services Grid with Explicit !important Spacing */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
-          {filteredServices.map((service) => {
+        {/* Services Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full mb-10">
+          {displayedServices.map((service) => {
             const IconComponent = iconMap[service.icon_name] || Layout;
             const features = parseJSON(service.features, []);
             const hasCategory = Boolean(service.category_name);
@@ -236,7 +282,71 @@ export default function AllServicesPage({ onBack, onOrderProduct }) {
           })}
         </div>
 
+        {/* Pagination Controls (Prev, beberapa awal, ..., beberapa akhir, Next) */}
+        {totalPages > 1 && (
+          <div className="flex flex-col items-center gap-3 w-full mb-10">
+            <div className="flex items-center justify-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/10 shadow-lg">
+              {/* Prev Button */}
+              <button
+                onClick={handlePrevPage}
+                className="w-9 h-9 rounded-full bg-slate-800 hover:bg-indigo-600 border border-white/10 hover:border-indigo-400 flex items-center justify-center text-slate-300 hover:text-white transition-all shadow-md active:scale-95"
+                title="Halaman Sebelumnya"
+                aria-label="Previous Page"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {/* Number Buttons (Beberapa Halaman Awal & Beberapa Halaman Akhir) */}
+              <div className="flex items-center gap-1.5 px-1">
+                {getPageNumbers().map((item) => {
+                  if (typeof item === 'string') {
+                    return (
+                      <span key={item} className="text-slate-500 text-xs px-1 select-none">
+                        ...
+                      </span>
+                    );
+                  }
+                  const isActive = item === currentPage;
+                  return (
+                    <button
+                      key={item}
+                      onClick={() => handleGoToPage(item)}
+                      className={`min-w-[32px] h-8 px-2 rounded-lg text-xs font-bold transition-all ${
+                        isActive
+                          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30 border border-indigo-400'
+                          : 'bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700 border border-white/10'
+                      }`}
+                      title={`Ke Halaman ${item + 1}`}
+                      aria-label={`Go to page ${item + 1}`}
+                    >
+                      {item + 1}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Next Button */}
+              <button
+                onClick={handleNextPage}
+                className="w-9 h-9 rounded-full bg-slate-800 hover:bg-indigo-600 border border-white/10 hover:border-indigo-400 flex items-center justify-center text-slate-300 hover:text-white transition-all shadow-md active:scale-95"
+                title="Halaman Selanjutnya"
+                aria-label="Next Page"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Page Counter */}
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <span className="font-medium text-slate-300">
+                Menampilkan {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredServices.length)} dari {filteredServices.length} produk
+              </span>
+            </div>
+          </div>
+        )}
+
       </div>
     </article>
   );
 }
+

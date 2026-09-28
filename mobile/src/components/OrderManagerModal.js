@@ -11,16 +11,23 @@ export default function OrderManagerModal({ visible, onClose }) {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('ALL');
 
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 5;
+
   useEffect(() => {
     if (visible) {
       fetchOrders();
     }
   }, [visible]);
 
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [statusFilter, visible]);
+
   const fetchOrders = async () => {
     setLoading(true);
     const res = await apiService.getOrders();
-    setOrders(res);
+    setOrders(res || []);
     setLoading(false);
   };
 
@@ -45,6 +52,41 @@ export default function OrderManagerModal({ visible, onClose }) {
     if (statusFilter === 'ALL') return true;
     return o.status === statusFilter;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / itemsPerPage));
+  const safeCurrentPage = Math.min(currentPage, totalPages - 1);
+  const startIndex = safeCurrentPage * itemsPerPage;
+  const displayedOrders = filteredOrders.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePrevPage = () => {
+    setCurrentPage(prev => (prev > 0 ? prev - 1 : totalPages - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage(prev => (prev < totalPages - 1 ? prev + 1 : 0));
+  };
+
+  const getPageNumbers = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i);
+    }
+    const pages = [];
+    const current = safeCurrentPage;
+
+    pages.push(0, 1);
+    if (current > 2) {
+      pages.push('ellipsis-1');
+    }
+    if (current > 1 && current < totalPages - 2) {
+      pages.push(current);
+    }
+    if (current < totalPages - 3) {
+      pages.push('ellipsis-2');
+    }
+    pages.push(totalPages - 2, totalPages - 1);
+
+    return pages.filter((item, idx, self) => self.indexOf(item) === idx);
+  };
 
   const formatPrice = (val) => 'Rp ' + Number(val || 0).toLocaleString('id-ID');
 
@@ -82,52 +124,111 @@ export default function OrderManagerModal({ visible, onClose }) {
               {filteredOrders.length === 0 ? (
                 <Text style={styles.emptyText}>Tidak ada pesanan pada kategori ini.</Text>
               ) : (
-                filteredOrders.map(item => (
-                  <View key={item.id} style={styles.orderCard}>
-                    <View style={styles.cardHeader}>
-                      <View>
-                        <Text style={styles.orderNum}>{item.order_number || `ORD-${item.id}`}</Text>
-                        <Text style={styles.custName}>{item.customer_name} ({item.customer_phone})</Text>
+                <>
+                  {displayedOrders.map(item => (
+                    <View key={item.id} style={styles.orderCard}>
+                      <View style={styles.cardHeader}>
+                        <View>
+                          <Text style={styles.orderNum}>{item.order_number || `ORD-${item.id}`}</Text>
+                          <Text style={styles.custName}>{item.customer_name} ({item.customer_phone})</Text>
+                        </View>
+                        <View style={[styles.statusBadge, item.status === 'Selesai' && styles.statusDone]}>
+                          <Text style={styles.statusText}>{item.status}</Text>
+                        </View>
                       </View>
-                      <View style={[styles.statusBadge, item.status === 'Selesai' && styles.statusDone]}>
-                        <Text style={styles.statusText}>{item.status}</Text>
+
+                      <Text style={styles.addressText} numberOfLines={2}>📍 {item.shipping_address}</Text>
+
+                      <View style={styles.amountRow}>
+                        <Text style={styles.payMethod}>💳 {item.payment_method}</Text>
+                        <Text style={styles.totalVal}>{formatPrice(item.total_amount)}</Text>
                       </View>
-                    </View>
 
-                    <Text style={styles.addressText} numberOfLines={2}>📍 {item.shipping_address}</Text>
-
-                    <View style={styles.amountRow}>
-                      <Text style={styles.payMethod}>💳 {item.payment_method}</Text>
-                      <Text style={styles.totalVal}>{formatPrice(item.total_amount)}</Text>
-                    </View>
-
-                    <View style={styles.actionRow}>
-                      <TouchableOpacity
-                        style={styles.waBtn}
-                        onPress={() => handleContactCustomer(item.customer_phone, item.order_number)}
-                      >
-                        <Ionicons name="logo-whatsapp" size={14} color={colors.emerald} />
-                        <Text style={styles.waBtnText}>Hubungi WA</Text>
-                      </TouchableOpacity>
-
-                      <View style={styles.statusButtons}>
+                      <View style={styles.actionRow}>
                         <TouchableOpacity
-                          style={[styles.stBtn, item.status === 'Diproses' && styles.stBtnActive]}
-                          onPress={() => handleUpdateStatus(item.id, 'Diproses')}
+                          style={styles.waBtn}
+                          onPress={() => handleContactCustomer(item.customer_phone, item.order_number)}
                         >
-                          <Text style={styles.stBtnText}>Diproses</Text>
+                          <Ionicons name="logo-whatsapp" size={14} color={colors.emerald} />
+                          <Text style={styles.waBtnText}>Hubungi WA</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity
-                          style={[styles.stBtn, item.status === 'Selesai' && styles.stBtnActiveDone]}
-                          onPress={() => handleUpdateStatus(item.id, 'Selesai')}
-                        >
-                          <Text style={styles.stBtnText}>Selesai</Text>
-                        </TouchableOpacity>
+                        <View style={styles.statusButtons}>
+                          <TouchableOpacity
+                            style={[styles.stBtn, item.status === 'Diproses' && styles.stBtnActive]}
+                            onPress={() => handleUpdateStatus(item.id, 'Diproses')}
+                          >
+                            <Text style={styles.stBtnText}>Diproses</Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity
+                            style={[styles.stBtn, item.status === 'Selesai' && styles.stBtnActiveDone]}
+                            onPress={() => handleUpdateStatus(item.id, 'Selesai')}
+                          >
+                            <Text style={styles.stBtnText}>Selesai</Text>
+                          </TouchableOpacity>
+                        </View>
                       </View>
                     </View>
-                  </View>
-                ))
+                  ))}
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <View style={styles.paginationWrapper}>
+                      <View style={styles.paginationBar}>
+                        {/* Previous Page Button */}
+                        <TouchableOpacity 
+                          style={styles.pageBtn} 
+                          onPress={handlePrevPage}
+                          activeOpacity={0.7}
+                        >
+                          <Ionicons name="chevron-back" size={18} color={colors.white} />
+                        </TouchableOpacity>
+
+                        {/* Number Indicators */}
+                        <View style={styles.dotsContainer}>
+                          {getPageNumbers().map((item) => {
+                            if (typeof item === 'string') {
+                              return (
+                                <Text key={item} style={{ color: colors.textMuted, fontSize: 12, marginHorizontal: 2 }}>
+                                  ...
+                                </Text>
+                              );
+                            }
+                            const isActive = item === safeCurrentPage;
+                            return (
+                              <TouchableOpacity
+                                key={item}
+                                onPress={() => setCurrentPage(item)}
+                                style={[
+                                  styles.numBtn,
+                                  isActive && styles.activeNumBtn
+                                ]}
+                              >
+                                <Text style={[styles.numBtnText, isActive && styles.activeNumBtnText]}>
+                                  {item + 1}
+                                </Text>
+                              </TouchableOpacity>
+                            );
+                          })}
+                        </View>
+
+                        {/* Next Page Button */}
+                        <TouchableOpacity 
+                          style={styles.pageBtn} 
+                          onPress={handleNextPage}
+                          activeOpacity={0.7}
+                        >
+                          <Ionicons name="chevron-forward" size={18} color={colors.white} />
+                        </TouchableOpacity>
+                      </View>
+
+                      <Text style={styles.paginationText}>
+                        Menampilkan {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredOrders.length)} dari {filteredOrders.length} Pesanan
+                      </Text>
+                    </View>
+                  )}
+                </>
               )}
             </ScrollView>
           )}
@@ -307,4 +408,63 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
   },
+  paginationWrapper: {
+    alignItems: 'center',
+    marginVertical: 14,
+    gap: 6,
+  },
+  paginationBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.bgCard,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: 12,
+  },
+  pageBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  numBtn: {
+    minWidth: 26,
+    height: 26,
+    paddingHorizontal: 6,
+    borderRadius: 6,
+    backgroundColor: colors.bgDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  activeNumBtn: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primaryLight,
+  },
+  numBtnText: {
+    color: colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  activeNumBtnText: {
+    color: colors.white,
+  },
+  paginationText: {
+    color: colors.textMuted,
+    fontSize: 11,
+    fontWeight: '500',
+  },
 });
+

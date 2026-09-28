@@ -43,6 +43,28 @@ export default function ServicesSection({ onOrderProduct }) {
     setCurrentPage(index);
   };
 
+  const getPageNumbers = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i);
+    }
+    const pages = [];
+    const current = currentPage;
+
+    pages.push(0, 1);
+    if (current > 2) {
+      pages.push('ellipsis-1');
+    }
+    if (current > 1 && current < totalPages - 2) {
+      pages.push(current);
+    }
+    if (current < totalPages - 3) {
+      pages.push('ellipsis-2');
+    }
+    pages.push(totalPages - 2, totalPages - 1);
+
+    return pages.filter((item, idx, self) => self.indexOf(item) === idx);
+  };
+
   // Touch Gesture Handlers
   const onTouchStart = (e) => {
     setTouchEnd(null);
@@ -226,10 +248,10 @@ export default function ServicesSection({ onOrderProduct }) {
           </div>
         </div>
 
-        {/* Side Pagination Controls (Panah & Dot Indicators) */}
+        {/* Side Pagination Controls (Prev, beberapa awal, ..., beberapa akhir, Next) */}
         {totalPages > 1 && (
           <div className="flex flex-col items-center gap-3 w-full mb-10">
-            <div className="flex items-center justify-center gap-4 bg-slate-900/80 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10 shadow-lg">
+            <div className="flex items-center justify-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/10 shadow-lg">
               {/* Prev Button */}
               <button
                 onClick={handlePrevPage}
@@ -240,22 +262,31 @@ export default function ServicesSection({ onOrderProduct }) {
                 <ChevronLeft className="w-5 h-5" />
               </button>
 
-              {/* Dot Indicators */}
-              <div className="flex items-center gap-2 px-2">
-                {Array.from({ length: totalPages }).map((_, idx) => {
-                  const isActive = idx === currentPage;
+              {/* Number Buttons (Beberapa Halaman Awal & Beberapa Halaman Akhir) */}
+              <div className="flex items-center gap-1.5 px-1">
+                {getPageNumbers().map((item) => {
+                  if (typeof item === 'string') {
+                    return (
+                      <span key={item} className="text-slate-500 text-xs px-1 select-none">
+                        ...
+                      </span>
+                    );
+                  }
+                  const isActive = item === currentPage;
                   return (
                     <button
-                      key={idx}
-                      onClick={() => handleGoToPage(idx)}
-                      className={`transition-all duration-300 rounded-full ${
+                      key={item}
+                      onClick={() => handleGoToPage(item)}
+                      className={`min-w-[32px] h-8 px-2 rounded-lg text-xs font-bold transition-all ${
                         isActive
-                          ? 'w-7 h-2.5 bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.8)]'
-                          : 'w-2.5 h-2.5 bg-white/20 hover:bg-white/50'
+                          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30 border border-indigo-400'
+                          : 'bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700 border border-white/10'
                       }`}
-                      title={`Ke Halaman ${idx + 1}`}
-                      aria-label={`Go to page ${idx + 1}`}
-                    />
+                      title={`Ke Halaman ${item + 1}`}
+                      aria-label={`Go to page ${item + 1}`}
+                    >
+                      {item + 1}
+                    </button>
                   );
                 })}
               </div>

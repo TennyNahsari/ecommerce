@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiService, parseJSON } from '../services/api';
-import { ArrowLeft, Layout, Code, TrendingUp, Sparkles, CheckCircle2, ArrowUpRight, ShieldCheck, Layers, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Layout, Code, TrendingUp, Sparkles, CheckCircle2, ArrowUpRight, ShieldCheck, Layers, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const iconMap = {
   Layout: Layout,
@@ -13,6 +13,9 @@ export default function ServiceCategoryPage({ categorySlug, onBack, onOrderProdu
   const [category, setCategory] = useState(null);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     async function loadCategoryServices() {
@@ -38,6 +41,46 @@ export default function ServiceCategoryPage({ categorySlug, onBack, onOrderProdu
     loadCategoryServices();
   }, [categorySlug]);
 
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [categorySlug]);
+
+  const totalPages = Math.max(1, Math.ceil(services.length / itemsPerPage));
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => (prev > 0 ? prev - 1 : totalPages - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
+  };
+
+  const handleGoToPage = (index) => {
+    setCurrentPage(index);
+  };
+
+  const getPageNumbers = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i);
+    }
+    const pages = [];
+    const current = currentPage;
+
+    pages.push(0, 1);
+    if (current > 2) {
+      pages.push('ellipsis-1');
+    }
+    if (current > 1 && current < totalPages - 2) {
+      pages.push(current);
+    }
+    if (current < totalPages - 3) {
+      pages.push('ellipsis-2');
+    }
+    pages.push(totalPages - 2, totalPages - 1);
+
+    return pages.filter((item, idx, self) => self.indexOf(item) === idx);
+  };
+
   const handleServiceDetailClick = (slug) => {
     const targetUrl = `/service/${slug}`;
     window.history.pushState({}, '', targetUrl);
@@ -53,6 +96,9 @@ export default function ServiceCategoryPage({ categorySlug, onBack, onOrderProdu
       </div>
     );
   }
+
+  const startIndex = currentPage * itemsPerPage;
+  const displayedServices = services.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <article className="subpage-top-clearance min-h-screen pb-28 w-full flex flex-col items-center">
@@ -85,9 +131,9 @@ export default function ServiceCategoryPage({ categorySlug, onBack, onOrderProdu
           </div>
         </div>
 
-        {/* Services Grid for this Category with Explicit !important Spacing */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
-          {services.map((service) => {
+        {/* Services Grid for this Category */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full mb-10">
+          {displayedServices.map((service) => {
             const IconComponent = iconMap[service.icon_name] || Layout;
             const features = parseJSON(service.features, []);
 
@@ -167,7 +213,7 @@ export default function ServiceCategoryPage({ categorySlug, onBack, onOrderProdu
                         className="product-card-btn flex-1 text-center font-bold text-white rounded-xl bg-indigo-600 hover:bg-indigo-500 shadow-md transition-all flex items-center justify-center gap-1 text-[11px]"
                       >
                         <span>Pesan</span>
-                        <ArrowRight className="w-3 h-3" />
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
@@ -177,7 +223,71 @@ export default function ServiceCategoryPage({ categorySlug, onBack, onOrderProdu
           })}
         </div>
 
+        {/* Pagination Controls (Prev, beberapa awal, ..., beberapa akhir, Next) */}
+        {totalPages > 1 && (
+          <div className="flex flex-col items-center gap-3 w-full mb-10">
+            <div className="flex items-center justify-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/10 shadow-lg">
+              {/* Prev Button */}
+              <button
+                onClick={handlePrevPage}
+                className="w-9 h-9 rounded-full bg-slate-800 hover:bg-indigo-600 border border-white/10 hover:border-indigo-400 flex items-center justify-center text-slate-300 hover:text-white transition-all shadow-md active:scale-95"
+                title="Halaman Sebelumnya"
+                aria-label="Previous Page"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {/* Number Buttons (Beberapa Halaman Awal & Beberapa Halaman Akhir) */}
+              <div className="flex items-center gap-1.5 px-1">
+                {getPageNumbers().map((item) => {
+                  if (typeof item === 'string') {
+                    return (
+                      <span key={item} className="text-slate-500 text-xs px-1 select-none">
+                        ...
+                      </span>
+                    );
+                  }
+                  const isActive = item === currentPage;
+                  return (
+                    <button
+                      key={item}
+                      onClick={() => handleGoToPage(item)}
+                      className={`min-w-[32px] h-8 px-2 rounded-lg text-xs font-bold transition-all ${
+                        isActive
+                          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30 border border-indigo-400'
+                          : 'bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700 border border-white/10'
+                      }`}
+                      title={`Ke Halaman ${item + 1}`}
+                      aria-label={`Go to page ${item + 1}`}
+                    >
+                      {item + 1}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Next Button */}
+              <button
+                onClick={handleNextPage}
+                className="w-9 h-9 rounded-full bg-slate-800 hover:bg-indigo-600 border border-white/10 hover:border-indigo-400 flex items-center justify-center text-slate-300 hover:text-white transition-all shadow-md active:scale-95"
+                title="Halaman Selanjutnya"
+                aria-label="Next Page"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Page Counter */}
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <span className="font-medium text-slate-300">
+                Menampilkan {startIndex + 1}-{Math.min(startIndex + itemsPerPage, services.length)} dari {services.length} produk
+              </span>
+            </div>
+          </div>
+        )}
+
       </div>
     </article>
   );
 }
+
