@@ -1,10 +1,9 @@
 import { Platform } from 'react-native';
 
 const getApiBase = () => {
-  if (Platform.OS === 'android') {
-    return 'http://10.0.2.2:5000/api';
-  }
-  return 'http://localhost:5000/api';
+  // Public Production API Server URL (Domain / IP Public Ubuntu Server)
+  // Ganti ke IP Public (http://139.190.99.252/api) atau Domain (https://ecommerce.tazkia.web.id/api)
+  return 'https://ecommerce.tazkia.web.id/api';
 };
 
 const API_BASE = getApiBase();
@@ -347,8 +346,8 @@ export const apiService = {
       const cleanQ = query.trim().toLowerCase();
       const found = mockOrders.filter(
         o => (o.order_code && o.order_code.toLowerCase().includes(cleanQ)) ||
-             (o.order_number && o.order_number.toLowerCase().includes(cleanQ)) ||
-             (o.customer_phone && o.customer_phone.includes(cleanQ))
+          (o.order_number && o.order_number.toLowerCase().includes(cleanQ)) ||
+          (o.customer_phone && o.customer_phone.includes(cleanQ))
       );
       if (found.length > 0) {
         return { success: true, data: found };
@@ -425,9 +424,9 @@ export const apiService = {
       const orders = await apiService.getOrders();
       const products = await apiService.getProducts();
       const inquiries = await apiService.getInquiries();
-      
+
       const pendingCount = orders.filter(o => o.status === 'PENDING' || o.status === 'Menunggu Konfirmasi').length;
-      
+
       return {
         totalOrders: orders.length,
         pendingOrders: pendingCount,
