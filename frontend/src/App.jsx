@@ -89,6 +89,8 @@ export default function App() {
     apiService.logout();
     setAdminUser(null);
     setInAdminPanel(false);
+    setShowAdminLogin(false);
+    navigateToHome();
   };
 
   const navigateToHome = () => {
@@ -112,7 +114,7 @@ export default function App() {
     serviceSlug = currentPath.replace(/^\/service\//, '');
   } else if (currentPath.startsWith('/blog/')) {
     blogSlug = currentPath.replace(/^\/blog\//, '');
-  } else if (currentPath !== '/' && !isAllServices && !isAllBlog && !currentPath.startsWith('/api') && !currentPath.startsWith('/admin')) {
+  } else if (currentPath !== '/' && !isAllServices && !isAllBlog && !currentPath.startsWith('/api') && !currentPath.startsWith('/admin') && !currentPath.startsWith('/login')) {
     customPageSlug = currentPath.replace(/^\//, '');
   }
 
@@ -176,7 +178,12 @@ export default function App() {
         {showAdminLogin && (
           <AdminLogin 
             onLoginSuccess={handleLoginSuccess}
-            onClose={() => setShowAdminLogin(false)}
+            onClose={() => {
+              setShowAdminLogin(false);
+              if (currentPath === '/login' || currentPath === '/admin') {
+                navigateToHome();
+              }
+            }}
           />
         )}
 
@@ -185,7 +192,10 @@ export default function App() {
           <AdminLayout 
             user={adminUser}
             onLogout={handleLogout}
-            onCloseAdmin={() => setInAdminPanel(false)}
+            onCloseAdmin={() => {
+              setInAdminPanel(false);
+              navigateToHome();
+            }}
           />
         )}
 
