@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, AlertCircle, ArrowRight } from 'lucide-react';
+import { Lock, AlertCircle, ArrowRight, Home } from 'lucide-react';
 import { apiService } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -25,12 +25,33 @@ export default function AdminLogin({ onLoginSuccess, onClose }) {
     }
   };
 
+  const handleGoToLandingPage = (e) => {
+    if (e) e.preventDefault();
+    if (window.location.pathname !== '/') {
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new Event('popstate'));
+    }
+    if (onClose) {
+      onClose();
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-lg animate-in fade-in">
       <div className="glass-panel login-modal-card border border-indigo-500/30 shadow-2xl relative">
         
-        {/* Language Selector Bar */}
-        <div className="flex items-center justify-end mb-4">
+        {/* Top Header Bar with Landing Page Link & Language Selector */}
+        <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/10">
+          <a
+            href="/"
+            onClick={handleGoToLandingPage}
+            className="flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-indigo-400 transition-colors py-1 px-2.5 rounded-lg hover:bg-slate-800/60"
+            title={lang === 'en' ? 'Back to Landing Page' : 'Kembali ke Landing Page'}
+          >
+            <Home className="w-4 h-4 text-indigo-400" />
+            <span>{lang === 'en' ? 'Landing Page' : 'Beranda'}</span>
+          </a>
+
           <div className="flex items-center bg-slate-900/80 rounded-xl p-1 border border-white/15">
             <button
               type="button"
@@ -120,6 +141,18 @@ export default function AdminLogin({ onLoginSuccess, onClose }) {
             </button>
           </div>
         </form>
+
+        {/* Landing Page Link Footer */}
+        <div className="mt-6 pt-4 border-t border-slate-700/50 text-center">
+          <a
+            href="/"
+            onClick={handleGoToLandingPage}
+            className="inline-flex items-center gap-2 text-xs font-semibold text-indigo-400 hover:text-indigo-300 hover:underline transition-all"
+          >
+            <Home className="w-4 h-4" />
+            <span>{lang === 'en' ? '← Back to Landing Page' : '← Kembali ke Halaman Utama (Landing Page)'}</span>
+          </a>
+        </div>
       </div>
     </div>
   );
