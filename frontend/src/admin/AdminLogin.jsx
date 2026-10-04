@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, AlertCircle, ArrowRight, Home } from 'lucide-react';
+import { Lock, AlertCircle, ArrowRight, Home, Globe } from 'lucide-react';
 import { apiService } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -41,15 +41,15 @@ export default function AdminLogin({ onLoginSuccess, onClose }) {
       <div className="glass-panel login-modal-card border border-indigo-500/30 shadow-2xl relative">
         
         {/* Top Header Bar with Landing Page Link & Language Selector */}
-        <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/10">
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
           <a
             href="/"
             onClick={handleGoToLandingPage}
-            className="flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-indigo-400 transition-colors py-1 px-2.5 rounded-lg hover:bg-slate-800/60"
-            title={lang === 'en' ? 'Back to Landing Page' : 'Kembali ke Landing Page'}
+            className="flex items-center gap-2 text-xs font-bold text-indigo-300 hover:text-white transition-all py-1.5 px-3 rounded-xl bg-indigo-500/20 border border-indigo-500/40 hover:bg-indigo-600/30 shadow-sm"
+            title={lang === 'en' ? 'Go to Landing Page' : 'Ke Landing Page'}
           >
-            <Home className="w-4 h-4 text-indigo-400" />
-            <span>{lang === 'en' ? 'Landing Page' : 'Beranda'}</span>
+            <Globe className="w-4 h-4 text-indigo-400" />
+            <span>{lang === 'en' ? 'Landing Page' : 'Ke Landing Page'}</span>
           </a>
 
           <div className="flex items-center bg-slate-900/80 rounded-xl p-1 border border-white/15">
@@ -126,10 +126,11 @@ export default function AdminLogin({ onLoginSuccess, onClose }) {
           <div className="login-modal-actions">
             <button 
               type="button" 
-              onClick={onClose}
-              className="btn-secondary login-modal-btn flex-1 justify-center font-bold"
+              onClick={handleGoToLandingPage}
+              className="btn-secondary login-modal-btn flex-1 justify-center font-bold gap-2 text-slate-200 hover:text-white"
             >
-              {lang === 'en' ? 'Cancel' : 'Batal'}
+              <Home className="w-4 h-4 text-indigo-400" />
+              <span>{lang === 'en' ? 'Landing Page' : 'Ke Landing Page'}</span>
             </button>
             <button 
               type="submit" 
@@ -147,10 +148,10 @@ export default function AdminLogin({ onLoginSuccess, onClose }) {
           <a
             href="/"
             onClick={handleGoToLandingPage}
-            className="inline-flex items-center gap-2 text-xs font-semibold text-indigo-400 hover:text-indigo-300 hover:underline transition-all"
+            className="inline-flex items-center gap-2 text-sm font-bold text-indigo-400 hover:text-indigo-300 hover:underline transition-all"
           >
-            <Home className="w-4 h-4" />
-            <span>{lang === 'en' ? '← Back to Landing Page' : '← Kembali ke Halaman Utama (Landing Page)'}</span>
+            <Globe className="w-4 h-4" />
+            <span>{lang === 'en' ? '← Back to Landing Page' : '← Kembali ke Landing Page'}</span>
           </a>
         </div>
       </div>
