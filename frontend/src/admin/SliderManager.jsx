@@ -7,10 +7,10 @@ export default function SliderManager() {
   const [newSlide, setNewSlide] = useState({
     title: '',
     subtitle: '',
-    badge_text: 'NEXT-GEN DIGITAL AGENCY',
-    image_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200',
-    cta_text: 'Explore Work',
-    cta_link: '#portfolio'
+    badge_text: 'PROMO SPESIAL UMKM',
+    image_url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200',
+    cta_text: 'Lihat Katalog Produk',
+    cta_link: '#services'
   });
   const [msg, setMsg] = useState('');
 
@@ -29,16 +29,17 @@ export default function SliderManager() {
 
     const res = await apiService.addSlider(newSlide);
     if (res.success) {
-      setMsg('Slide added successfully!');
+      setMsg('Slide berhasil ditambahkan dan disimpan!');
       setNewSlide({
         title: '',
         subtitle: '',
-        badge_text: 'NEXT-GEN DIGITAL AGENCY',
-        image_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200',
-        cta_text: 'Explore Work',
-        cta_link: '#portfolio'
+        badge_text: 'PROMO SPESIAL UMKM',
+        image_url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200',
+        cta_text: 'Lihat Katalog Produk',
+        cta_link: '#services'
       });
       loadSliders();
+      setTimeout(() => setMsg(''), 4000);
     }
   };
 

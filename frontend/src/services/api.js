@@ -82,10 +82,21 @@ export const apiService = {
       const res = await fetch(`${API_BASE}/sliders`);
       const data = await res.json();
       const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
-      if (list.length > 0) return list;
+      if (list.length > 0) {
+        try { localStorage.setItem('digi_sliders', JSON.stringify(list)); } catch (e) {}
+        return list;
+      }
       throw new Error("Empty sliders");
     } catch (e) {
-      return [
+      try {
+        const local = localStorage.getItem('digi_sliders');
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (err) {}
+
+      const defaultList = [
         {
           id: 1,
           title: 'Pusat Peralatan Listrik UMKM Terlengkap',
@@ -93,7 +104,8 @@ export const apiService = {
           badge_text: 'PROMO SPESIAL UMKM',
           image_url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200',
           cta_text: 'Lihat Katalog Produk',
-          cta_link: '#services'
+          cta_link: '#services',
+          is_active: true
         },
         {
           id: 2,
@@ -102,27 +114,56 @@ export const apiService = {
           badge_text: 'HEMAT ENERGI 85%',
           image_url: 'https://images.unsplash.com/photo-1550985616-10810253b84d?q=80&w=1200',
           cta_text: 'Jelajahi Produk Lampu',
-          cta_link: '#services'
+          cta_link: '#services',
+          is_active: true
         }
       ];
+      try { localStorage.setItem('digi_sliders', JSON.stringify(defaultList)); } catch (err) {}
+      return defaultList;
     }
   },
 
   addSlider: async (sliderData) => {
-    const res = await fetch(`${API_BASE}/sliders`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(sliderData)
-    });
-    return res.json();
+    try {
+      const res = await fetch(`${API_BASE}/sliders`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(sliderData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        const currentList = await apiService.getSliders();
+        const updatedList = [...currentList, data.data || { id: Date.now(), ...sliderData }];
+        try { localStorage.setItem('digi_sliders', JSON.stringify(updatedList)); } catch (e) {}
+        return data;
+      }
+      throw new Error(data.message || 'Failed to add slide');
+    } catch (e) {
+      const currentList = await apiService.getSliders();
+      const newSlide = { id: Date.now(), ...sliderData, is_active: true };
+      const updatedList = [...currentList, newSlide];
+      try { localStorage.setItem('digi_sliders', JSON.stringify(updatedList)); } catch (err) {}
+      return { success: true, data: newSlide };
+    }
   },
 
   deleteSlider: async (id) => {
-    const res = await fetch(`${API_BASE}/sliders/${id}`, {
-      method: 'DELETE',
-      headers: getHeaders()
-    });
-    return res.json();
+    try {
+      const res = await fetch(`${API_BASE}/sliders/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      const currentList = await apiService.getSliders();
+      const updatedList = currentList.filter(s => s.id !== id);
+      try { localStorage.setItem('digi_sliders', JSON.stringify(updatedList)); } catch (e) {}
+      return data;
+    } catch (e) {
+      const currentList = await apiService.getSliders();
+      const updatedList = currentList.filter(s => s.id !== id);
+      try { localStorage.setItem('digi_sliders', JSON.stringify(updatedList)); } catch (err) {}
+      return { success: true, message: 'Slide deleted successfully.' };
+    }
   },
 
   // Service Categories

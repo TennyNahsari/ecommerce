@@ -54,7 +54,7 @@ export default function HeroSlider() {
           {/* Glowing Badge */}
           <div className="badge-glow animate-pulse mx-auto">
             <span className="pulse-dot"></span>
-            <span>{currentSlide.badge_text || 'NEXT-GEN DIGITAL AGENCY'}</span>
+            <span>{currentSlide.badge_text || 'PROMO SPESIAL UMKM'}</span>
           </div>
 
           {/* Dynamic Headline */}
