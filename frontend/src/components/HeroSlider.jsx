@@ -66,9 +66,8 @@ export default function HeroSlider() {
         />
       ))}
 
-      {/* Balanced Overlay for Text Legibility while keeping Hero Image vivid & fully visible */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#081425] via-[#081425]/65 to-[#081425]/80" />
-      <div className="absolute inset-0 bg-slate-950/30" />
+      {/* Bright & Crisp Overlay for Text Legibility while keeping Hero Image vivid & bright */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#081425] via-[#081425]/30 to-[#081425]/20" />
 
       {/* Hero Content Overlay Container */}
       <div className="custom-container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full flex flex-col items-center justify-center">
