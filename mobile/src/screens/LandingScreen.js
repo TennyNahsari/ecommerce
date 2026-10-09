@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
@@ -14,6 +14,7 @@ export default function LandingScreen({ onNavigate }) {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   
@@ -42,10 +43,23 @@ export default function LandingScreen({ onNavigate }) {
       apiService.getCategories(),
       apiService.getProducts()
     ]);
-    setSliders(sliderRes);
-    setCategories(catRes);
-    setProducts(prodRes);
+    setSliders(sliderRes || []);
+    setCategories(catRes || []);
+    setProducts(prodRes || []);
     setLoading(false);
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    const [sliderRes, catRes, prodRes] = await Promise.all([
+      apiService.getSliders(),
+      apiService.getCategories(),
+      apiService.getProducts()
+    ]);
+    setSliders(sliderRes || []);
+    setCategories(catRes || []);
+    setProducts(prodRes || []);
+    setRefreshing(false);
   };
 
   const handleProductPress = (product) => {
@@ -113,7 +127,13 @@ export default function LandingScreen({ onNavigate }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bgDark }}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.container} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primaryLight} colors={[colors.primary]} />
+        }
+      >
         {/* Search Bar */}
         <View style={styles.searchSection}>
           <View style={styles.searchBar}>

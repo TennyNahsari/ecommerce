@@ -9,10 +9,14 @@ export default function SliderManagerModal({ visible, onClose }) {
   const { t } = useLanguage();
   const [sliders, setSliders] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Form fields matching Web SliderManager
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
-  const [badgeText, setBadgeText] = useState('');
+  const [badgeText, setBadgeText] = useState('PROMO SPESIAL UMKM');
   const [imageUrl, setImageUrl] = useState('');
+  const [ctaText, setCtaText] = useState('Lihat Katalog Produk');
+  const [ctaLink, setCtaLink] = useState('Catalog');
   const [adding, setAdding] = useState(false);
 
   useEffect(() => {
@@ -22,30 +26,65 @@ export default function SliderManagerModal({ visible, onClose }) {
   const fetchSliders = async () => {
     setLoading(true);
     const res = await apiService.getSliders();
-    setSliders(res);
+    setSliders(res || []);
     setLoading(false);
   };
 
   const handleAddSlider = async () => {
     if (!title.trim()) {
-      Alert.alert('Peringatan', 'Judul Promo Banner wajib diisi.');
+      Alert.alert('Peringatan', 'Judul Headline Utama wajib diisi.');
       return;
     }
+    const finalImage = imageUrl.trim() || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200';
     setAdding(true);
-    const newSlide = {
-      id: Date.now(),
+    
+    const sliderData = {
       title,
-      subtitle: subtitle || 'Promo peralatan listrik & lampu LED berkualtas.',
-      badge_text: badgeText || 'PROMO TERBARU',
-      image_url: imageUrl || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200'
+      subtitle: subtitle || 'Solusi kebutuhan peralatan & perlengkapan listrik berkualitas.',
+      badge_text: badgeText || 'PROMO SPESIAL UMKM',
+      image_url: finalImage,
+      cta_text: ctaText || 'Lihat Katalog Produk',
+      cta_link: ctaLink || 'Catalog'
     };
-    setSliders(prev => [newSlide, ...prev]);
+
+    const res = await apiService.addSlider(sliderData);
     setAdding(false);
-    setTitle('');
-    setSubtitle('');
-    setBadgeText('');
-    setImageUrl('');
-    Alert.alert('Sukses 🎉', 'Promo Banner baru berhasil ditambahkan!');
+
+    if (res && res.success !== false) {
+      setTitle('');
+      setSubtitle('');
+      setBadgeText('PROMO SPESIAL UMKM');
+      setImageUrl('');
+      setCtaText('Lihat Katalog Produk');
+      setCtaLink('Catalog');
+      Alert.alert('Sukses 🎉', 'Slide Banner Hero berhasil ditambahkan!');
+      fetchSliders();
+    } else {
+      Alert.alert('Gagal', res?.message || 'Gagal menambahkan slide banner.');
+    }
+  };
+
+  const handleDeleteSlider = (id, titleText) => {
+    Alert.alert(
+      'Hapus Slide Hero',
+      `Apakah Anda yakin ingin menghapus slide "${titleText}"?`,
+      [
+        { text: 'Batal', style: 'cancel' },
+        { 
+          text: 'Hapus', 
+          style: 'destructive',
+          onPress: async () => {
+            const res = await apiService.deleteSlider(id);
+            if (res && res.success !== false) {
+              Alert.alert('Sukses', 'Slide berhasil dihapus.');
+              fetchSliders();
+            } else {
+              Alert.alert('Gagal', res?.message || 'Gagal menghapus slide.');
+            }
+          }
+        }
+      ]
+    );
   };
 
   return (
@@ -54,8 +93,8 @@ export default function SliderManagerModal({ visible, onClose }) {
         <View style={styles.modalContent}>
           <View style={styles.header}>
             <View>
-              <Text style={styles.title}>{t('modal_slider_title')}</Text>
-              <Text style={styles.subtitle}>{t('slider_subtitle')}</Text>
+              <Text style={styles.title}>{t('modal_slider_title') || 'Kelola Hero Slider Promo'}</Text>
+              <Text style={styles.subtitle}>{t('slider_subtitle') || 'Kelola carousel banner hero beranda & teks promo'}</Text>
             </View>
             <TouchableOpacity onPress={onClose}>
               <Ionicons name="close-circle" size={26} color={colors.textMuted} />
@@ -65,42 +104,31 @@ export default function SliderManagerModal({ visible, onClose }) {
           <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
             {/* Form Add Slider */}
             <View style={styles.formBox}>
-              <Text style={styles.formTitle}>+ {t('add_slider_btn')}</Text>
+              <Text style={styles.formTitle}>+ Tambah Slide Hero Baru</Text>
               
-              <Text style={styles.label}>Judul Promo *</Text>
+              <Text style={styles.label}>Judul Headline Utama *</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Contoh: Diskon Lampu LED Garansi 1 Tahun"
+                  placeholder="e.g. Pusat Peralatan Listrik UMKM Terlengkap"
                   placeholderTextColor={colors.textMuted}
                   value={title}
                   onChangeText={setTitle}
                 />
               </View>
 
-              <Text style={styles.label}>Subjudul / Deskripsi Promo</Text>
+              <Text style={styles.label}>Teks Badge Promo / Tagline</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Deskripsi singkat penawaran..."
-                  placeholderTextColor={colors.textMuted}
-                  value={subtitle}
-                  onChangeText={setSubtitle}
-                />
-              </View>
-
-              <Text style={styles.label}>Teks Badge Promo</Text>
-              <View style={styles.inputWrapper}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Contoh: PROMO SPESIAL UMKM"
+                  placeholder="e.g. PROMO SPESIAL UMKM"
                   placeholderTextColor={colors.textMuted}
                   value={badgeText}
                   onChangeText={setBadgeText}
                 />
               </View>
 
-              <Text style={styles.label}>URL Gambar Banner</Text>
+              <Text style={styles.label}>URL Gambar Banner Slide</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
@@ -111,25 +139,94 @@ export default function SliderManagerModal({ visible, onClose }) {
                 />
               </View>
 
-              <TouchableOpacity style={styles.addBtn} onPress={handleAddSlider} disabled={adding}>
-                <Ionicons name="images" size={16} color={colors.white} />
-                <Text style={styles.addBtnText}>{t('add_slider_btn')}</Text>
+              {imageUrl ? (
+                <View style={styles.previewContainer}>
+                  <Image source={{ uri: imageUrl }} style={styles.previewImage} resizeMode="cover" />
+                </View>
+              ) : null}
+
+              <Text style={styles.label}>Subjudul / Deskripsi Promo</Text>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={[styles.input, { height: 50 }]}
+                  multiline
+                  placeholder="Solusi kebutuhan kabel, stop kontak, sakelar..."
+                  placeholderTextColor={colors.textMuted}
+                  value={subtitle}
+                  onChangeText={setSubtitle}
+                />
+              </View>
+
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.label}>Teks Tombol (CTA)</Text>
+                  <View style={styles.inputWrapper}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Lihat Katalog"
+                      placeholderTextColor={colors.textMuted}
+                      value={ctaText}
+                      onChangeText={setCtaText}
+                    />
+                  </View>
+                </View>
+
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.label}>Target Link / Aksi</Text>
+                  <View style={styles.inputWrapper}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Catalog"
+                      placeholderTextColor={colors.textMuted}
+                      value={ctaLink}
+                      onChangeText={setCtaLink}
+                    />
+                  </View>
+                </View>
+              </View>
+
+              <TouchableOpacity 
+                style={[styles.addBtn, adding && { opacity: 0.6 }]} 
+                onPress={handleAddSlider} 
+                disabled={adding}
+              >
+                {adding ? (
+                  <ActivityIndicator size="small" color={colors.white} />
+                ) : (
+                  <>
+                    <Ionicons name="images" size={16} color={colors.white} />
+                    <Text style={styles.addBtnText}>Simpan Slide Hero</Text>
+                  </>
+                )}
               </TouchableOpacity>
             </View>
 
             {/* List Sliders */}
-            <Text style={styles.sectionHeader}>Daftar Banner Promo Aktif</Text>
+            <Text style={styles.sectionHeader}>Daftar Slide Banner Hero Aktif ({sliders.length})</Text>
             {loading ? (
               <ActivityIndicator color={colors.primary} style={{ marginVertical: 20 }} />
+            ) : sliders.length === 0 ? (
+              <Text style={{ color: colors.textMuted, fontSize: 12, textAlign: 'center', marginVertical: 20 }}>
+                Belum ada banner hero yang terdaftar.
+              </Text>
             ) : (
               sliders.map(item => (
                 <View key={item.id} style={styles.sliderCard}>
-                  <Image source={{ uri: item.image_url }} style={styles.sliderImg} />
+                  <Image source={{ uri: item.image_url || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200' }} style={styles.sliderImg} />
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.sliderBadge}>{item.badge_text}</Text>
+                    <Text style={styles.sliderBadge}>{item.badge_text || 'PROMO'}</Text>
                     <Text style={styles.sliderTitle} numberOfLines={1}>{item.title}</Text>
                     <Text style={styles.sliderSub} numberOfLines={1}>{item.subtitle}</Text>
+                    <Text style={styles.sliderCta} numberOfLines={1}>
+                      Tombol: {item.cta_text || 'Lihat Katalog'} ({item.cta_link || 'Catalog'})
+                    </Text>
                   </View>
+                  <TouchableOpacity 
+                    style={styles.deleteBtn}
+                    onPress={() => handleDeleteSlider(item.id, item.title)}
+                  >
+                    <Ionicons name="trash-outline" size={18} color={colors.rose} />
+                  </TouchableOpacity>
                 </View>
               ))
             )}
@@ -205,6 +302,18 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: 12,
   },
+  previewContainer: {
+    height: 90,
+    borderRadius: 8,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginVertical: 4,
+  },
+  previewImage: {
+    width: '100%',
+    height: '100%',
+  },
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -243,7 +352,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   sliderBadge: {
-    color: colors.rose,
+    color: colors.accent,
     fontSize: 10,
     fontWeight: '700',
   },
@@ -255,5 +364,15 @@ const styles = StyleSheet.create({
   sliderSub: {
     color: colors.textMuted,
     fontSize: 11,
+  },
+  sliderCta: {
+    color: colors.textSecondary,
+    fontSize: 10,
+    marginTop: 2,
+  },
+  deleteBtn: {
+    padding: 8,
+    backgroundColor: 'rgba(244, 63, 94, 0.15)',
+    borderRadius: 8,
   },
 });

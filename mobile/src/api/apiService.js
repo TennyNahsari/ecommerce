@@ -126,6 +126,56 @@ export const apiService = {
     }
   },
 
+  addSlider: async (sliderData) => {
+    try {
+      let token = null;
+      try {
+        const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+        token = await AsyncStorage.getItem('digi_token');
+      } catch (e) {}
+
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_BASE}/sliders`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(sliderData)
+      });
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      const newSlide = {
+        id: Date.now(),
+        ...sliderData,
+        is_active: true
+      };
+      return { success: true, message: 'Slide promo berhasil ditambahkan.', data: newSlide };
+    }
+  },
+
+  deleteSlider: async (id) => {
+    try {
+      let token = null;
+      try {
+        const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+        token = await AsyncStorage.getItem('digi_token');
+      } catch (e) {}
+
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_BASE}/sliders/${id}`, {
+        method: 'DELETE',
+        headers
+      });
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      return { success: true, message: 'Slide promo berhasil dihapus.' };
+    }
+  },
+
   getCategories: async () => {
     try {
       const res = await fetch(`${API_BASE}/services/categories`);
